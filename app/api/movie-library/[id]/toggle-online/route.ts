@@ -1,12 +1,10 @@
 import { NextResponse } from 'next/server'
-import { PrismaClient } from '@prisma/client'
-
-const prisma = new PrismaClient()
+import { prisma } from '@/lib/prisma'
 
 export async function PATCH(request: Request, { params }: { params: { id: string } }) {
   try {
     const data = await request.json()
-    const movie = await prisma.title.update({
+    const movie = await prisma.titles.update({
       where: { id: params.id },
       data: { isOnline: data.isOnline }
     })
@@ -16,3 +14,5 @@ export async function PATCH(request: Request, { params }: { params: { id: string
     return NextResponse.json({ error: 'Failed to update status' }, { status: 500 })
   }
 }
+
+

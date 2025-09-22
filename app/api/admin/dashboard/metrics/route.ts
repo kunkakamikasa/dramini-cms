@@ -26,11 +26,11 @@ export async function GET(request: NextRequest) {
       pendingTranscodes,
       pendingReports,
     ] = await Promise.all([
-      prisma.title.count(),
-      prisma.title.count({ where: { status: 'PUBLISHED' } }),
-      prisma.title.count({ where: { status: 'DRAFT' } }),
-      prisma.episode.count(),
-      prisma.user.count(),
+      prisma.titles.count(),
+      prisma.titles.count({ where: { status: 'PUBLISHED' } }),
+      prisma.titles.count({ where: { status: 'DRAFT' } }),
+      prisma.episodes.count(),
+      prisma.users.count(),
       prisma.purchase.count(),
       prisma.purchase.aggregate({
         where: { status: 'COMPLETED' },

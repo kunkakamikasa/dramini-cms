@@ -1,10 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  experimental: {
-    appDir: true,
-  },
   images: {
-    domains: ['localhost'],
+    domains: ['localhost', 'cms.dramini.com', 'api.dramini.com'],
     remotePatterns: [
       {
         protocol: 'https',
@@ -15,3 +12,4 @@ const nextConfig = {
 }
 
 module.exports = nextConfig
+

@@ -84,3 +84,5 @@ app.get('/api/v1/public/trending-now', async (req, reply) => {
   
   return { ok: true, items }
 })
+
+

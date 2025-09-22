@@ -6,14 +6,16 @@ export async function GET() {
   try {
     const userCoins = await prisma.userCoin.findMany({
       include: {
-        user: {
+        users: {
           select: { id: true, name: true, email: true }
         }
       },
-      orderBy: { balance: 'desc' }
+      orderBy: { amount: 'desc' }
     })
     return NextResponse.json(userCoins)
   } catch (error) {
     return NextResponse.json({ error: 'Failed to fetch user coins' }, { status: 500 })
   }
 }
+
+

@@ -4,6 +4,7 @@ import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { requirePermission } from '@/lib/permissions'
 import { z } from 'zod'
+import { Prisma } from '@prisma/client'
 
 const createTagSchema = z.object({
   name: z.string().min(1, '标签名称不能为空'),
@@ -24,8 +25,8 @@ export async function GET(request: NextRequest) {
 
     const where = q ? {
       OR: [
-        { name: { contains: q, mode: 'insensitive' } },
-        { slug: { contains: q, mode: 'insensitive' } }
+        { name: { contains: q, mode: Prisma.QueryMode.insensitive } },
+        { slug: { contains: q, mode: Prisma.QueryMode.insensitive } }
       ]
     } : {}
 
@@ -88,7 +89,7 @@ export async function POST(request: NextRequest) {
     // 记录审计日志
     await prisma.auditLog.create({
       data: {
-        actorUserId: session.user.id,
+        actorUserId: (session.user as any).id,
         action: 'CREATE',
         entity: 'Tag',
         entityId: tag.id,

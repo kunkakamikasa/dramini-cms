@@ -1,11 +1,9 @@
 import { NextResponse } from 'next/server'
-import { PrismaClient } from '@prisma/client'
-
-const prisma = new PrismaClient()
+import { prisma } from '@/lib/prisma'
 
 export async function DELETE(request: Request, { params }: { params: { id: string } }) {
   try {
-    await prisma.category.delete({
+    await prisma.categories.delete({
       where: { id: params.id }
     })
     return NextResponse.json({ success: true })
@@ -18,7 +16,7 @@ export async function DELETE(request: Request, { params }: { params: { id: strin
 export async function PATCH(request: Request, { params }: { params: { id: string } }) {
   try {
     const data = await request.json()
-    const category = await prisma.category.update({
+    const category = await prisma.categories.update({
       where: { id: params.id },
       data
     })
@@ -28,3 +26,5 @@ export async function PATCH(request: Request, { params }: { params: { id: string
     return NextResponse.json({ error: 'Failed to update category' }, { status: 500 })
   }
 }
+
+

@@ -20,7 +20,7 @@ export async function GET(request: NextRequest) {
 
     await requirePermission('content:edit')
 
-    const categories = await prisma.category.findMany({
+    const categories = await prisma.categories.findMany({
       orderBy: { order: 'asc' },
       include: {
         _count: {
@@ -57,7 +57,7 @@ export async function POST(request: NextRequest) {
     const validatedData = createCategorySchema.parse(body)
 
     // 检查 slug 是否已存在
-    const existingCategory = await prisma.category.findUnique({
+    const existingCategory = await prisma.categories.findUnique({
       where: { slug: validatedData.slug }
     })
 
@@ -68,18 +68,20 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const category = await prisma.category.create({
+    const category = await prisma.categories.create({
       data: {
+        id: require('crypto').randomUUID(),
         name: validatedData.name,
         slug: validatedData.slug,
-        order: validatedData.order
+        order: validatedData.order,
+        updatedAt: new Date()
       }
     })
 
     // 记录审计日志
     await prisma.auditLog.create({
       data: {
-        actorUserId: session.user.id,
+        actorUserId: (session.user as any).id,
         action: 'CREATE',
         entity: 'Category',
         entityId: category.id,

@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { PrismaClient } from '@prisma/client'
-
-const prisma = new PrismaClient()
+import { prisma } from '@/lib/prisma'
 
 // 获取单个剧集
 export async function GET(
@@ -9,10 +7,10 @@ export async function GET(
   { params }: { params: { id: string } }
 ) {
   try {
-    const episode = await prisma.episode.findUnique({
+    const episode = await prisma.episodes.findUnique({
       where: { id: params.id },
       include: {
-        title: {
+        titles: {
           select: {
             id: true,
             name: true,
@@ -67,11 +65,11 @@ export async function PATCH(
     if (data.priceCurrency !== undefined) updateData.priceCurrency = data.priceCurrency
     if (data.status !== undefined) updateData.status = data.status
     
-    const episode = await prisma.episode.update({
+    const episode = await prisma.episodes.update({
       where: { id: params.id },
       data: updateData,
       include: {
-        title: {
+        titles: {
           select: {
             id: true,
             name: true,
@@ -93,7 +91,7 @@ export async function DELETE(
   { params }: { params: { id: string } }
 ) {
   try {
-    await prisma.episode.delete({
+    await prisma.episodes.delete({
       where: { id: params.id }
     })
 

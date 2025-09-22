@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 export default function TitleOverviewPage({ params }: { params: { id: string } }) {
   return (
     <div className="space-y-6">
@@ -11,3 +12,5 @@ export default function TitleOverviewPage({ params }: { params: { id: string } }
     </div>
   )
 }
+
+

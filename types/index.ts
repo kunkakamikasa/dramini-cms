@@ -1,6 +1,6 @@
-import { User, Role, Permission } from '@prisma/client'
+import { users, Role, Permission } from '@prisma/client'
 
-export interface UserWithRoles extends User {
+export interface UserWithRoles extends users {
   roles: Array<{
     role: Role & {
       permissions: Array<{
@@ -272,3 +272,5 @@ export interface TranscodeJobWithRelations {
     transcodeStatus: string
   }
 }
+
+

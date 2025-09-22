@@ -1,7 +1,5 @@
 import { NextResponse } from 'next/server'
-import { PrismaClient } from '@prisma/client'
-
-const prisma = new PrismaClient()
+import { prisma } from '@/lib/prisma'
 
 export async function GET() {
   try {
@@ -16,11 +14,11 @@ export async function GET() {
       totalRevenue,
       pendingReports
     ] = await Promise.all([
-      prisma.title.count(),
-      prisma.title.count({ where: { status: 'PUBLISHED' } }),
-      prisma.title.count({ where: { status: 'DRAFT' } }),
-      prisma.episode.count(),
-      prisma.user.count(),
+      prisma.titles.count(),
+      prisma.titles.count({ where: { status: 'PUBLISHED' } }),
+      prisma.titles.count({ where: { status: 'DRAFT' } }),
+      prisma.episodes.count(),
+      prisma.users.count(),
       prisma.purchase.count({ where: { status: 'COMPLETED' } }),
       prisma.purchase.aggregate({
         where: { status: 'COMPLETED' },
@@ -73,3 +71,5 @@ export async function GET() {
     )
   }
 }
+
+

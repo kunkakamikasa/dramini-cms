@@ -4,65 +4,74 @@ const db = new PrismaClient()
 async function main() {
   try {
     // 创建分类
-    const cat = await db.category.upsert({
+    const cat = await db.categories.upsert({
       where: { slug: 'romance' }, 
       update: {}, 
-      create: { 
-        name: 'Romance', 
+      create: {
+        id: require('crypto').randomUUID(),
+        name: 'Romance',
         slug: 'romance',
-        order: 1
+        order: 1,
+        updatedAt: new Date()
       }
     })
 
     // 创建管理员用户
-    const adminUser = await db.user.upsert({
+    const adminUser = await db.users.upsert({
       where: { email: 'admin@dramini.com' },
       update: {},
       create: {
+        id: require('crypto').randomUUID(),
         email: 'admin@dramini.com',
         name: '系统管理员',
-        provider: 'email'
+        provider: 'email',
+        updatedAt: new Date()
       }
     })
 
     // 创建测试标题
-    const t = await db.title.upsert({
+    const t = await db.titles.upsert({
       where: { slug: 'test-love' }, 
       update: {}, 
       create: {
-        name: 'Test Love', 
+        id: require('crypto').randomUUID(),
+        name: 'Test Love',
         slug: 'test-love',
         synopsis: 'Minimal E2E title',
-        previewImage: 'https://picsum.photos/1200/600?random=2',
         categoryId: cat.id,
         createdById: adminUser.id,
         updatedById: adminUser.id,
-        status: 'PUBLISHED'
+        status: 'PUBLISHED',
+        updatedAt: new Date()
       }
     })
 
     // 创建集数
-    await db.episode.upsert({
+    await db.episodes.upsert({
       where: { titleId_epNumber: { titleId: t.id, epNumber: 1 } }, 
       update: {},
-      create: { 
-        titleId: t.id, 
-        epNumber: 1, 
-        name: 'Ep1', 
+      create: {
+        id: require('crypto').randomUUID(),
+        titleId: t.id,
+        epNumber: 1,
+        name: 'Ep1',
         isFreePreview: true,
-        status: 'PUBLISHED'
+        status: 'PUBLISHED',
+        updatedAt: new Date()
       }
     })
 
-    await db.episode.upsert({
+    await db.episodes.upsert({
       where: { titleId_epNumber: { titleId: t.id, epNumber: 2 } }, 
       update: {},
-      create: { 
-        titleId: t.id, 
-        epNumber: 2, 
-        name: 'Ep2', 
+      create: {
+        id: require('crypto').randomUUID(),
+        titleId: t.id,
+        epNumber: 2,
+        name: 'Ep2',
         isFreePreview: true,
-        status: 'PUBLISHED'
+        status: 'PUBLISHED',
+        updatedAt: new Date()
       }
     })
 
@@ -73,3 +82,5 @@ async function main() {
 }
 
 main().finally(() => process.exit(0))
+
+

@@ -1,65 +1,31 @@
-// This is your Prisma schema file for demo
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
-// User Management
-model User {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  name      String?
-  avatar    String?
-  provider  String   @default("email")
-  status    String   @default("ACTIVE")
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // Relations
-  roles       UserRole[]
-  purchases   Purchase[]
-  subscriptions Subscription[]
-  flagReports FlagReport[]
-  auditLogs   AuditLog[]
-  createdTitles Title[] @relation("TitleCreatedBy")
-  updatedTitles Title[] @relation("TitleUpdatedBy")
-  userPurchases UserPurchase[] @relation("UserPurchases")
-  userCoin      UserCoin? @relation("UserCoins")
-  coinTransactions CoinTransaction[] @relation("UserCoinTransactions")
-  userSubscriptions UserSubscription[] @relation("UserSubscriptions")
-  adUnlocks     AdUnlock[] @relation("UserAdUnlocks")
-
-  @@map("users")
-}
-
-// RBAC System
 model Role {
-  id          String @id @default(cuid())
-  name        String @unique
+  id          String           @id @default(cuid())
+  name        String           @unique
   description String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  // Relations
-  users       UserRole[]
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
   permissions RolePermission[]
+  users       UserRole[]
 
   @@map("roles")
 }
 
 model Permission {
-  id          String @id @default(cuid())
-  key         String @unique
+  id          String           @id @default(cuid())
+  key         String           @unique
   name        String
   description String?
-  createdAt   DateTime @default(now())
-
-  // Relations
-  roles RolePermission[]
+  createdAt   DateTime         @default(now())
+  roles       RolePermission[]
 
   @@map("permissions")
 }
@@ -68,252 +34,144 @@ model UserRole {
   id     String @id @default(cuid())
   userId String
   roleId String
-
-  // Relations
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-  role Role @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  role   Role   @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  user   users  @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, roleId])
   @@map("user_roles")
 }
 
 model RolePermission {
-  id           String @id @default(cuid())
+  id           String     @id @default(cuid())
   roleId       String
   permissionId String
-
-  // Relations
-  role       Role       @relation(fields: [roleId], references: [id], onDelete: Cascade)
-  permission Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+  permission   Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+  role         Role       @relation(fields: [roleId], references: [id], onDelete: Cascade)
 
   @@unique([roleId, permissionId])
   @@map("role_permissions")
 }
 
-// Content Management
-model Category {
-  id        String   @id @default(cuid())
-  slug      String   @unique
-  name      String
-  order     Int      @default(0)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // Relations
-  titles Title[]
-
-  @@map("categories")
-}
-
 model Tag {
-  id        String   @id @default(cuid())
-  slug      String   @unique
+  id        String     @id @default(cuid())
+  slug      String     @unique
   name      String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // Relations
-  titles TitleTag[]
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  titles    TitleTag[]
 
   @@map("tags")
-}
-
-model Title {
-  id            String      @id @default(cuid())
-  slug          String      @unique
-  name          String
-  mainTitle     String?     // 主标题
-  subTitle      String?     // 副标题
-  synopsis      String?
-  coverImageId  String?
-  coverUrl      String?     // 9:16封面图URL
-  bannerUrl     String?     // 16:9轮播图URL
-  previewImage  String?     // 首页大图预览
-  status        String      @default("DRAFT")
-  isOnline      Boolean     @default(false) // 上下线状态
-  language      String      @default("en")
-  createdById   String
-  updatedById   String
-  createdAt     DateTime    @default(now())
-  updatedAt     DateTime    @updatedAt
-  releaseAt     DateTime?
-  rating        Float?
-  featuredWeight Int        @default(0)
-  freeUntilEpisode Int?     // 免费到第几集
-  bundlePrice     Int?      // 整部剧价格（分为单位）
-  bundlePriceCurrency String @default("CNY") // 货币单位
-  bundlePriceCoins Int?     // 整部剧金币价格
-
-  // Relations
-  createdBy     User        @relation("TitleCreatedBy", fields: [createdById], references: [id])
-  updatedBy     User        @relation("TitleUpdatedBy", fields: [updatedById], references: [id])
-  category      Category?   @relation(fields: [categoryId], references: [id])
-  categoryId    String?
-  episodes      Episode[]
-  tags          TitleTag[]
-  collections   CollectionItem[]
-  purchases     Purchase[]
-  flagReports   FlagReport[]
-  translations  Translation[]
-  sectionContents SectionContent[] @relation("SectionContentTitle")
-  userPurchases   UserPurchase[] @relation("TitlePurchases")
-  coinTransactions CoinTransaction[] @relation("CoinTransactionTitle")
-
-  @@map("titles")
 }
 
 model TitleTag {
   id      String @id @default(cuid())
   titleId String
   tagId   String
-
-  // Relations
-  title Title @relation(fields: [titleId], references: [id], onDelete: Cascade)
-  tag   Tag   @relation(fields: [tagId], references: [id], onDelete: Cascade)
+  tag     Tag    @relation(fields: [tagId], references: [id], onDelete: Cascade)
+  title   titles @relation(fields: [titleId], references: [id], onDelete: Cascade)
 
   @@unique([titleId, tagId])
   @@map("title_tags")
 }
 
-model Episode {
-  id             String        @id @default(cuid())
-  titleId        String
-  epNumber       Int           // 数据库实际字段名
-  name           String        // 数据库中是必填的
-  durationSec    Int?          // 数据库实际字段名
-  videoId        String?       // 数据库实际字段名
-  isFreePreview  Boolean       @default(false)  // 数据库实际字段名
-  lockType       String        @default("PAID_PER_EPISODE")
-  priceCents     Int?
-  isFree          Boolean      @default(false) // 单集是否免费
-  episodePrice    Int?         // 单集价格（分为单位）
-  priceCurrency   String       @default("CNY") // 货币单位
-  episodePriceCoins Int        @default(100) // 单集金币价格
-  status         String        @default("DRAFT")
-  createdAt      DateTime      @default(now())
-  updatedAt      DateTime      @updatedAt
-
-  // Relations
-  title      Title      @relation(fields: [titleId], references: [id], onDelete: Cascade)
-  purchases  Purchase[]
-  flagReports FlagReport[]
-  userPurchases UserPurchase[] @relation("EpisodePurchases")
-  coinTransactions CoinTransaction[] @relation("CoinTransactionEpisode")
-  adUnlocks     AdUnlock[] @relation("AdUnlockEpisode")
-
-  @@unique([titleId, epNumber])
-  @@map("episodes")
-}
-
-// Commerce
 model PricingPlan {
-  id          String      @id @default(cuid())
-  type        String
-  priceCents  Int
-  currency    String      @default("USD")
-  benefitsJson String?
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
-
-  // Relations
-  subscriptions Subscription[]
+  id            String         @id @default(cuid())
+  type          String
+  priceCents    Int
+  currency      String         @default("USD")
+  benefitsJson  String?
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
   purchases     Purchase[]
+  subscriptions Subscription[]
 
   @@map("pricing_plans")
 }
 
 model Purchase {
-  id        String        @id @default(cuid())
-  userId    String
-  titleId   String
-  episodeId String?
-  planId    String?
+  id          String       @id @default(cuid())
+  userId      String
+  titleId     String
+  episodeId   String?
+  planId      String?
   amountCents Int
-  currency  String        @default("USD")
-  provider  String
-  status    String        @default("PENDING")
-  extRef    String?
-  createdAt DateTime      @default(now())
-  updatedAt DateTime      @updatedAt
-
-  // Relations
-  user    User    @relation(fields: [userId], references: [id])
-  title   Title   @relation(fields: [titleId], references: [id])
-  episode Episode? @relation(fields: [episodeId], references: [id])
-  plan    PricingPlan? @relation(fields: [planId], references: [id])
+  currency    String       @default("USD")
+  provider    String
+  status      String       @default("PENDING")
+  extRef      String?
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  episode     episodes?    @relation(fields: [episodeId], references: [id])
+  plan        PricingPlan? @relation(fields: [planId], references: [id])
+  title       titles       @relation(fields: [titleId], references: [id])
+  user        users        @relation(fields: [userId], references: [id])
 
   @@map("purchases")
 }
 
 model Subscription {
-  id                String           @id @default(cuid())
-  userId            String
-  planId            String
-  status            String           @default("ACTIVE")
-  currentPeriodEnd  DateTime
-  extRef            String?
-  createdAt         DateTime         @default(now())
-  updatedAt         DateTime         @updatedAt
-
-  // Relations
-  user User         @relation(fields: [userId], references: [id])
-  plan PricingPlan  @relation(fields: [planId], references: [id])
+  id               String      @id @default(cuid())
+  userId           String
+  planId           String
+  status           String      @default("ACTIVE")
+  currentPeriodEnd DateTime
+  extRef           String?
+  createdAt        DateTime    @default(now())
+  updatedAt        DateTime    @updatedAt
+  plan             PricingPlan @relation(fields: [planId], references: [id])
+  user             users       @relation(fields: [userId], references: [id])
 
   @@map("subscriptions")
 }
 
 model Promotion {
-  id         String        @id @default(cuid())
-  code       String        @unique
+  id         String   @id @default(cuid())
+  code       String   @unique
   type       String
   value      Int
   startsAt   DateTime
   endsAt     DateTime
   usageLimit Int?
-  usedCount  Int           @default(0)
-  createdAt  DateTime      @default(now())
-  updatedAt  DateTime      @updatedAt
+  usedCount  Int      @default(0)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 
   @@map("promotions")
 }
 
-// Audit & Reports
 model AuditLog {
-  id         String   @id @default(cuid())
-  actorUserId String
-  action     String
-  entity     String
-  entityId   String
-  beforeJson String?
-  afterJson  String?
-  ip         String?
-  createdAt  DateTime @default(now())
-
-  // Relations
-  actor User @relation(fields: [actorUserId], references: [id])
+  id          String   @id @default(cuid())
+  actorUserId String?
+  actorAdminId String?
+  action      String
+  entity      String
+  entityId    String
+  beforeJson  String?
+  afterJson   String?
+  ip          String?
+  createdAt   DateTime @default(now())
+  actor       users?   @relation(fields: [actorUserId], references: [id])
+  actorAdmin  admins?  @relation("AdminAuditLogs", fields: [actorAdminId], references: [id])
 
   @@map("audit_logs")
 }
 
 model FlagReport {
-  id        String        @id @default(cuid())
+  id        String    @id @default(cuid())
   userId    String
   titleId   String?
   episodeId String?
   reason    String
-  status    String        @default("PENDING")
-  createdAt DateTime      @default(now())
-  updatedAt DateTime      @updatedAt
-
-  // Relations
-  user    User     @relation(fields: [userId], references: [id])
-  title   Title?   @relation(fields: [titleId], references: [id])
-  episode Episode? @relation(fields: [episodeId], references: [id])
+  status    String    @default("PENDING")
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  episode   episodes? @relation(fields: [episodeId], references: [id])
+  title     titles?   @relation(fields: [titleId], references: [id])
+  user      users     @relation(fields: [userId], references: [id])
 
   @@map("flag_reports")
 }
 
-// Settings & Localization
 model Setting {
   id        String   @id @default(cuid())
   key       String   @unique
@@ -325,12 +183,10 @@ model Setting {
 }
 
 model Locale {
-  id        String   @id @default(cuid())
-  code      String   @unique
-  name      String
-  createdAt DateTime @default(now())
-
-  // Relations
+  id           String        @id @default(cuid())
+  code         String        @unique
+  name         String
+  createdAt    DateTime      @default(now())
   translations Translation[]
 
   @@map("locales")
@@ -346,196 +202,194 @@ model Translation {
   status    String   @default("DRAFT")
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
-  // Relations
-  locale Locale @relation(fields: [localeId], references: [id])
-  title  Title? @relation(fields: [titleId], references: [id])
-  titleId String?
+  titleId   String?
+  locale    Locale   @relation(fields: [localeId], references: [id])
+  title     titles?  @relation(fields: [titleId], references: [id])
 
   @@unique([entity, entityId, field, localeId])
   @@map("translations")
 }
 
 model Collection {
-  id            String       @id @default(cuid())
-  name          String
-  slug          String       @unique
-  type          String
-  ruleJson      String?
+  id             String           @id @default(cuid())
+  name           String
+  slug           String           @unique
+  type           String
+  ruleJson       String?
   itemsOrderJson String?
-  createdAt     DateTime     @default(now())
-  updatedAt     DateTime     @updatedAt
-
-  // Relations
-  items CollectionItem[]
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+  items          CollectionItem[]
 
   @@map("collections")
 }
 
 model CollectionItem {
-  id           String @id @default(cuid())
+  id           String     @id @default(cuid())
   collectionId String
   titleId      String
-  order        Int    @default(0)
-
-  // Relations
-  collection Collection @relation(fields: [collectionId], references: [id], onDelete: Cascade)
-  title      Title      @relation(fields: [titleId], references: [id], onDelete: Cascade)
+  order        Int        @default(0)
+  collection   Collection @relation(fields: [collectionId], references: [id], onDelete: Cascade)
+  title        titles     @relation(fields: [titleId], references: [id], onDelete: Cascade)
 
   @@unique([collectionId, titleId])
   @@map("collection_items")
 }
 
-// 统一的板块内容管理模型
-model SectionContent {
+model categories {
+  id        String   @id
+  slug      String   @unique
+  name      String
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime
+  titles    titles[]
+}
+
+model episodes {
+  id            String       @id
+  titleId       String
+  epNumber      Int
+  name          String
+  durationSec   Int?
+  videoId       String?
+  isFreePreview Boolean      @default(false)
+  lockType      String       @default("PAID_PER_EPISODE")
+  priceCents    Int?
+  status        String       @default("DRAFT")
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime
+  titles        titles       @relation(fields: [titleId], references: [id], onDelete: Cascade)
+  flagReports   FlagReport[]
+  purchases     Purchase[]
+
+  @@unique([titleId, epNumber])
+}
+
+model titles {
+  id                              String           @id
+  slug                            String           @unique
+  name                            String
+  mainTitle                       String?
+  subTitle                        String?
+  synopsis                        String?
+  coverImageId                    String?
+  coverUrl                        String?
+  bannerUrl                       String?
+  isOnline                        Boolean          @default(false)
+  freeUntilEpisode                Int?
+  bundlePrice                     Int?
+  bundlePriceCurrency             String           @default("CNY")
+  bundlePriceCoins                Int?
+  status                          String           @default("DRAFT")
+  language                        String           @default("en")
+  createdById                     String
+  updatedById                     String
+  createdAt                       DateTime         @default(now())
+  updatedAt                       DateTime
+  releaseAt                       DateTime?
+  rating                          Float?
+  featuredWeight                  Int              @default(0)
+  categoryId                      String?
+  collections                     CollectionItem[]
+  episodes                        episodes[]
+  flagReports                     FlagReport[]
+  purchases                       Purchase[]
+  tags                            TitleTag[]
+  categories                      categories?      @relation(fields: [categoryId], references: [id])
+  users_titles_createdByIdTousers users            @relation("titles_createdByIdTousers", fields: [createdById], references: [id])
+  users_titles_updatedByIdTousers users            @relation("titles_updatedByIdTousers", fields: [updatedById], references: [id])
+  translations                    Translation[]
+  sectionContent                  sectionContent[]
+}
+
+// 前台用户表（看剧用户）
+model users {
+  id                               String         @id
+  email                            String         @unique
+  name                             String?
+  avatar                           String?
+  provider                         String         @default("email")
+  status                           String         @default("ACTIVE")
+  createdAt                        DateTime       @default(now())
+  updatedAt                        DateTime
+  auditLogs                        AuditLog[]
+  flagReports                      FlagReport[]
+  purchases                        Purchase[]
+  subscriptions                    Subscription[]
+  titles_titles_createdByIdTousers titles[]       @relation("titles_createdByIdTousers")
+  titles_titles_updatedByIdTousers titles[]       @relation("titles_updatedByIdTousers")
+  roles                            UserRole[]
+  userCoin                         userCoin?
+}
+
+// 后台管理员表
+model admins {
+  id           String              @id
+  email        String              @unique
+  name         String?
+  avatar       String?
+  password     String?
+  role         String              @default("ADMIN")
+  status       String              @default("ACTIVE")
+  lastLogin    DateTime?
+  createdAt    DateTime            @default(now())
+  updatedAt    DateTime            @updatedAt
+  permissions  AdminPermission[]
+  auditLogs    AuditLog[]         @relation("AdminAuditLogs")
+
+  @@map("admins")
+}
+
+// 管理员权限表
+model AdminPermission {
+  id            String   @id @default(cuid())
+  adminId       String
+  permissionKey String
+  createdAt     DateTime @default(now())
+  admin         admins   @relation(fields: [adminId], references: [id], onDelete: Cascade)
+
+  @@unique([adminId, permissionKey])
+  @@map("admin_permissions")
+}
+
+model sectionContent {
   id        String   @id @default(cuid())
-  section   String   // 'hero', 'new_release', 'trending', 'popular_categories'
-  titleId   String   // 关联的影片ID
-  order     Int      @default(1)
+  section   String
+  titleId   String
+  order     Int      @default(0)
   isActive  Boolean  @default(true)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
-  // Relations
-  title     Title    @relation("SectionContentTitle", fields: [titleId], references: [id], onDelete: Cascade)
+  titles    titles   @relation(fields: [titleId], references: [id], onDelete: Cascade)
 
   @@unique([section, titleId])
-  @@map("section_contents")
+  @@map("section_content")
 }
 
-// 用户购买记录
-model UserPurchase {
-  id              String   @id @default(cuid())
-  userId          String   // 购买用户ID
-  titleId         String?  // 购买的剧ID（整部剧购买）
-  episodeId       String?  // 购买的剧集ID（单集购买）
-  purchaseType    String   // "SERIES" | "EPISODE"
-  paymentProvider String   // "STRIPE" | "PAYPAL" | "ALIPAY"
-  paymentId       String?  // 第三方支付ID
-  amount          Int      // 支付金额（分为单位）
-  currency        String   @default("CNY")
-  status          String   @default("PENDING") // "PENDING" | "COMPLETED" | "FAILED" | "REFUNDED"
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
-  
-  // Relations
-  user            User     @relation("UserPurchases", fields: [userId], references: [id], onDelete: Cascade)
-  title           Title?   @relation("TitlePurchases", fields: [titleId], references: [id], onDelete: Cascade)
-  episode         Episode? @relation("EpisodePurchases", fields: [episodeId], references: [id], onDelete: Cascade)
-  
-  @@map("user_purchases")
-}
+model paymentPackage {
+  id          String   @id @default(cuid())
+  name        String
+  priceUsd    Int
+  baseCoins   Int
+  bonusCoins  Int      @default(0)
+  isFirstTime Boolean  @default(false)
+  description String?
+  order       Int      @default(0)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
-// 用户金币账户
-model UserCoin {
-  id            String   @id @default(cuid())
-  userId        String   @unique
-  balance       Int      @default(0) // 当前金币余额
-  totalEarned   Int      @default(0) // 历史总获得金币
-  totalSpent    Int      @default(0) // 历史总消费金币
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-  
-  // Relations
-  user          User     @relation("UserCoins", fields: [userId], references: [id], onDelete: Cascade)
-  transactions  CoinTransaction[]
-  
-  @@map("user_coins")
-}
-
-// 充值套餐配置
-model PaymentPackage {
-  id              String   @id @default(cuid())
-  name            String   // "入门档", "最常用"等
-  priceUsd        Int      // 美分为单位，如 499 = $4.99
-  baseCoins       Int      // 基础金币数
-  bonusCoins      Int      @default(0) // 赠送金币数
-  isFirstTime     Boolean  @default(false) // 是否首充套餐
-  isActive        Boolean  @default(true)
-  order           Int      @default(0) // 显示顺序
-  description     String?  // 套餐描述
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
-  
-  // Relations
-  transactions    CoinTransaction[]
-  
   @@map("payment_packages")
 }
 
-// 金币交易记录
-model CoinTransaction {
-  id              String   @id @default(cuid())
-  userId          String
-  type            String   // "PURCHASE", "SPEND", "AD_REWARD", "SUBSCRIPTION_BONUS"
-  amount          Int      // 金币数量（正数=获得，负数=消费）
-  balanceBefore   Int      // 交易前余额
-  balanceAfter    Int      // 交易后余额
-  description     String?  // 交易描述
-  
-  // 关联信息
-  packageId       String?  // 充值套餐ID
-  titleId         String?  // 相关剧集ID（如果是剧集消费）
-  episodeId       String?  // 相关单集ID
-  userSubscriptionId String? // 用户订阅ID
-  
-  // 支付信息
-  paymentProvider String?  // "STRIPE", "PAYPAL", "AD_NETWORK"
-  paymentId       String?  // 第三方支付ID
-  status          String   @default("COMPLETED") // "PENDING", "COMPLETED", "FAILED"
-  
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
-  
-  // Relations
-  user            User             @relation("UserCoinTransactions", fields: [userId], references: [id], onDelete: Cascade)
-  userCoin        UserCoin         @relation(fields: [userId], references: [userId], onDelete: Cascade)
-  package         PaymentPackage?  @relation(fields: [packageId], references: [id])
-  title           Title?           @relation("CoinTransactionTitle", fields: [titleId], references: [id])
-  episode         Episode?         @relation("CoinTransactionEpisode", fields: [episodeId], references: [id])
-  userSubscription UserSubscription? @relation(fields: [userSubscriptionId], references: [id])
-  
-  @@map("coin_transactions")
-}
+model userCoin {
+  id        String   @id @default(cuid())
+  userId    String   @unique
+  amount    Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  users     users    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-// 用户订阅
-model UserSubscription {
-  id              String   @id @default(cuid())
-  userId          String
-  planType        String   // "MONTHLY", "QUARTERLY", "YEARLY"
-  status          String   @default("ACTIVE") // "ACTIVE", "CANCELLED", "EXPIRED"
-  priceUsd        Int      // 订阅价格（美分）
-  bonusCoins      Int      @default(0) // 每期赠送金币
-  startDate       DateTime
-  endDate         DateTime
-  autoRenew       Boolean  @default(true)
-  
-  // 支付信息
-  paymentProvider String?
-  paymentId       String?
-  
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
-  
-  // Relations
-  user            User     @relation("UserSubscriptions", fields: [userId], references: [id], onDelete: Cascade)
-  transactions    CoinTransaction[]
-  
-  @@map("user_subscriptions")
-}
-
-// 广告解锁记录
-model AdUnlock {
-  id              String   @id @default(cuid())
-  userId          String
-  adProvider      String   // "ADMOB", "FACEBOOK", "UNITY"
-  rewardCoins     Int      @default(30) // 奖励金币数
-  episodeId       String?  // 解锁的剧集ID（如果适用）
-  createdAt       DateTime @default(now())
-  
-  // Relations
-  user            User     @relation("UserAdUnlocks", fields: [userId], references: [id], onDelete: Cascade)
-  episode         Episode? @relation("AdUnlockEpisode", fields: [episodeId], references: [id])
-  
-  @@map("ad_unlocks")
+  @@map("user_coins")
 }

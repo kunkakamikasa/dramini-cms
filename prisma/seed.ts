@@ -1,4 +1,5 @@
 import { PrismaClient } from '@prisma/client'
+import crypto from 'crypto'
 
 const prisma = new PrismaClient()
 
@@ -185,13 +186,15 @@ async function main() {
   ])
 
   // 创建管理员用户
-  const adminUser = await prisma.user.upsert({
+  const adminUser = await prisma.users.upsert({
     where: { email: 'admin@dramini.com' },
     update: {},
     create: {
+      id: crypto.randomUUID(),
       email: 'admin@dramini.com',
       name: '系统管理员',
-      provider: 'email'
+      provider: 'email',
+      updatedAt: new Date()
     }
   })
 
@@ -207,40 +210,48 @@ async function main() {
 
   // 创建分类
   const categories = await Promise.all([
-    prisma.category.upsert({
+    prisma.categories.upsert({
       where: { slug: 'romance' },
       update: {},
       create: {
+        id: crypto.randomUUID(),
         slug: 'romance',
         name: '浪漫爱情',
-        order: 1
+        order: 1,
+        updatedAt: new Date()
       }
     }),
-    prisma.category.upsert({
+    prisma.categories.upsert({
       where: { slug: 'drama' },
       update: {},
       create: {
+        id: crypto.randomUUID(),
         slug: 'drama',
         name: '都市情感',
-        order: 2
+        order: 2,
+        updatedAt: new Date()
       }
     }),
-    prisma.category.upsert({
+    prisma.categories.upsert({
       where: { slug: 'fantasy' },
       update: {},
       create: {
+        id: crypto.randomUUID(),
         slug: 'fantasy',
         name: '奇幻玄幻',
-        order: 3
+        order: 3,
+        updatedAt: new Date()
       }
     }),
-    prisma.category.upsert({
+    prisma.categories.upsert({
       where: { slug: 'comedy' },
       update: {},
       create: {
+        id: crypto.randomUUID(),
         slug: 'comedy',
         name: '喜剧搞笑',
-        order: 4
+        order: 4,
+        updatedAt: new Date()
       }
     })
   ])
@@ -282,8 +293,9 @@ async function main() {
   ])
 
   // 创建示例标题
-  const title1 = await prisma.title.create({
+  const title1 = await prisma.titles.create({
     data: {
+      id: crypto.randomUUID(),
       slug: 'ceo-sweet-wife',
       name: '总裁的甜心小娇妻',
       synopsis: '一场意外让普通女孩苏晚晚成为了霸道总裁顾景深的妻子，从此开始了甜蜜的婚后生活...',
@@ -294,12 +306,14 @@ async function main() {
       categoryId: categories[0].id,
       rating: 4.8,
       featuredWeight: 100,
-      releaseAt: new Date()
+      releaseAt: new Date(),
+      updatedAt: new Date()
     }
   })
 
-  const title2 = await prisma.title.create({
+  const title2 = await prisma.titles.create({
     data: {
+      id: crypto.randomUUID(),
       slug: 'time-travel-princess',
       name: '穿越之公主驾到',
       synopsis: '现代女孩意外穿越到古代成为公主，凭借现代知识在古代宫廷中闯出一片天地...',
@@ -310,7 +324,8 @@ async function main() {
       categoryId: categories[2].id,
       rating: 4.6,
       featuredWeight: 90,
-      releaseAt: new Date()
+      releaseAt: new Date(),
+      updatedAt: new Date()
     }
   })
 
@@ -338,8 +353,9 @@ async function main() {
 
   // 创建示例集数
   const episodes1 = await Promise.all([
-    prisma.episode.create({
+    prisma.episodes.create({
       data: {
+        id: crypto.randomUUID(),
         titleId: title1.id,
         epNumber: 1,
         name: '意外相遇',
@@ -347,11 +363,13 @@ async function main() {
         isFreePreview: true,
         lockType: 'PAID_PER_EPISODE',
         priceCents: 100,
-        status: 'PUBLISHED'
+        status: 'PUBLISHED',
+        updatedAt: new Date()
       }
     }),
-    prisma.episode.create({
+    prisma.episodes.create({
       data: {
+        id: require('crypto').randomUUID(),
         titleId: title1.id,
         epNumber: 2,
         name: '契约婚姻',
@@ -359,11 +377,13 @@ async function main() {
         isFreePreview: true,
         lockType: 'PAID_PER_EPISODE',
         priceCents: 100,
-        status: 'PUBLISHED'
+        status: 'PUBLISHED',
+        updatedAt: new Date()
       }
     }),
-    prisma.episode.create({
+    prisma.episodes.create({
       data: {
+        id: require('crypto').randomUUID(),
         titleId: title1.id,
         epNumber: 3,
         name: '甜蜜日常',
@@ -371,11 +391,13 @@ async function main() {
         isFreePreview: true,
         lockType: 'PAID_PER_EPISODE',
         priceCents: 100,
-        status: 'PUBLISHED'
+        status: 'PUBLISHED',
+        updatedAt: new Date()
       }
     }),
-    prisma.episode.create({
+    prisma.episodes.create({
       data: {
+        id: require('crypto').randomUUID(),
         titleId: title1.id,
         epNumber: 4,
         name: '醋意大发',
@@ -383,11 +405,13 @@ async function main() {
         isFreePreview: false,
         lockType: 'PAID_PER_EPISODE',
         priceCents: 100,
-        status: 'PUBLISHED'
+        status: 'PUBLISHED',
+        updatedAt: new Date()
       }
     }),
-    prisma.episode.create({
+    prisma.episodes.create({
       data: {
+        id: require('crypto').randomUUID(),
         titleId: title1.id,
         epNumber: 5,
         name: '真心告白',
@@ -395,14 +419,16 @@ async function main() {
         isFreePreview: false,
         lockType: 'PAID_PER_EPISODE',
         priceCents: 100,
-        status: 'PUBLISHED'
+        status: 'PUBLISHED',
+        updatedAt: new Date()
       }
     })
   ])
 
   const episodes2 = await Promise.all([
-    prisma.episode.create({
+    prisma.episodes.create({
       data: {
+        id: require('crypto').randomUUID(),
         titleId: title2.id,
         epNumber: 1,
         name: '穿越重生',
@@ -410,11 +436,13 @@ async function main() {
         isFreePreview: true,
         lockType: 'PAID_PER_EPISODE',
         priceCents: 100,
-        status: 'PUBLISHED'
+        status: 'PUBLISHED',
+        updatedAt: new Date()
       }
     }),
-    prisma.episode.create({
+    prisma.episodes.create({
       data: {
+        id: require('crypto').randomUUID(),
         titleId: title2.id,
         epNumber: 2,
         name: '宫廷初入',
@@ -422,11 +450,13 @@ async function main() {
         isFreePreview: true,
         lockType: 'PAID_PER_EPISODE',
         priceCents: 100,
-        status: 'PUBLISHED'
+        status: 'PUBLISHED',
+        updatedAt: new Date()
       }
     }),
-    prisma.episode.create({
+    prisma.episodes.create({
       data: {
+        id: require('crypto').randomUUID(),
         titleId: title2.id,
         epNumber: 3,
         name: '智斗恶人',
@@ -434,7 +464,8 @@ async function main() {
         isFreePreview: true,
         lockType: 'PAID_PER_EPISODE',
         priceCents: 100,
-        status: 'PUBLISHED'
+        status: 'PUBLISHED',
+        updatedAt: new Date()
       }
     })
   ])

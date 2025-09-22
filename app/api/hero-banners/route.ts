@@ -1,7 +1,6 @@
+export const dynamic = "force-dynamic";
 import { NextResponse } from 'next/server'
-import { PrismaClient } from '@prisma/client'
-
-const prisma = new PrismaClient()
+import { prisma } from '@/lib/prisma'
 
 export async function GET() {
   try {
@@ -11,7 +10,7 @@ export async function GET() {
         isActive: true
       },
       include: {
-        title: {
+        titles: {
           select: {
             id: true, name: true, mainTitle: true, subTitle: true,
             bannerUrl: true, slug: true, isOnline: true
@@ -22,20 +21,20 @@ export async function GET() {
     })
     
     const formatted = items
-      .filter(item => item.title.isOnline && item.title.bannerUrl)
+      .filter(item => item.titles.isOnline && item.titles.bannerUrl)
       .map(item => ({
         id: item.id,
         movieId: item.titleId,
         order: item.order,
         isActive: item.isActive,
         movie: {
-          id: item.title.id,
-          name: item.title.name,
-          mainTitle: item.title.mainTitle,
-          subTitle: item.title.subTitle,
-          bannerUrl: item.title.bannerUrl,
-          slug: item.title.slug,
-          isOnline: item.title.isOnline
+          id: item.titles.id,
+          name: item.titles.name,
+          mainTitle: item.titles.mainTitle,
+          subTitle: item.titles.subTitle,
+          bannerUrl: item.titles.bannerUrl,
+          slug: item.titles.slug,
+          isOnline: item.titles.isOnline
         },
         createdAt: item.createdAt
       }))

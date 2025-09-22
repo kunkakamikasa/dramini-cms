@@ -6,10 +6,10 @@ export async function GET(
   { params }: { params: { id: string } }
 ) {
   try {
-    const title = await prisma.title.findUnique({
+    const title = await prisma.titles.findUnique({
       where: { id: params.id },
       include: {
-        category: {
+        categories: {
           select: {
             id: true,
             name: true
@@ -39,7 +39,7 @@ export async function PUT(
   try {
     const data = await request.json()
     
-    const updatedTitle = await prisma.title.update({
+    const updatedTitle = await prisma.titles.update({
       where: { id: params.id },
       data: {
         name: data.name,
@@ -59,7 +59,7 @@ export async function PUT(
         updatedAt: new Date()
       },
       include: {
-        category: {
+        categories: {
           select: {
             id: true,
             name: true
@@ -87,7 +87,7 @@ export async function DELETE(
   { params }: { params: { id: string } }
 ) {
   try {
-    await prisma.title.delete({
+    await prisma.titles.delete({
       where: { id: params.id }
     })
 

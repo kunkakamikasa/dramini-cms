@@ -1,13 +1,9 @@
 import type { Metadata } from 'next'
-import { Inter } from 'next/font/google'
 import './globals.css'
-import { Providers } from './providers'
-
-const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'Dramini CMS - 短剧平台管理后台',
-  description: '短剧平台内容管理系统',
+  title: 'Dramini CMS',
+  description: 'Content Management System',
 }
 
 export default function RootLayout({
@@ -16,11 +12,9 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="zh">
-      <body className={inter.className}>
-        <Providers>
-          {children}
-        </Providers>
+    <html lang="en">
+      <body className="font-sans">
+        {children}
       </body>
     </html>
   )

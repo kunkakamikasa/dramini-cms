@@ -1,10 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import crypto from 'crypto'
 
 // 获取所有用户订阅
 export async function GET() {
   try {
-    const subscriptions = await prisma.userSubscription.findMany({
+    const subscriptions = await prisma.subscription.findMany({
       include: {
         user: {
           select: { id: true, name: true, email: true }
@@ -23,16 +24,14 @@ export async function POST(request: NextRequest) {
   try {
     const data = await request.json()
     
-    const subscription = await prisma.userSubscription.create({
+    const subscription = await prisma.subscription.create({
       data: {
+        id: crypto.randomUUID(),
         userId: data.userId,
-        planType: data.planType,
-        priceUsd: data.priceUsd,
-        bonusCoins: data.bonusCoins || 0,
-        startDate: new Date(data.startDate),
-        endDate: new Date(data.endDate),
-        paymentProvider: data.paymentProvider || null,
-        paymentId: data.paymentId || null
+        planId: data.planId,
+        status: data.status || 'ACTIVE',
+        currentPeriodEnd: new Date(data.expiresAt || data.endDate),
+        updatedAt: new Date()
       }
     })
     
@@ -41,3 +40,5 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Failed to create subscription' }, { status: 500 })
   }
 }
+
+

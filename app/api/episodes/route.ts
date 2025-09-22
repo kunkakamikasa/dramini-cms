@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import crypto from 'crypto'
 
 // 获取所有剧集
 export async function GET(request: NextRequest) {
@@ -9,10 +10,10 @@ export async function GET(request: NextRequest) {
     
     const whereClause = titleId ? { titleId } : {}
     
-    const episodes = await prisma.episode.findMany({
+    const episodes = await prisma.episodes.findMany({
       where: whereClause,
       include: {
-        title: {
+        titles: {
           select: {
             id: true,
             name: true,
@@ -21,7 +22,7 @@ export async function GET(request: NextRequest) {
         }
       },
       orderBy: [
-        { title: { name: 'asc' } },
+        { titles: { name: 'asc' } },
         { epNumber: 'asc' }
       ]
     })
@@ -63,6 +64,7 @@ export async function POST(request: NextRequest) {
     
     // 调试：显示将要保存的数据
     const episodeData = {
+      id: crypto.randomUUID(),
       titleId: data.titleId,
       epNumber: data.episodeNum || 1,
       name: data.name || `第${data.episodeNum || 1}集`,
@@ -70,15 +72,15 @@ export async function POST(request: NextRequest) {
       videoId: data.videoUrl || null,
       isFreePreview: data.isOnline || false,
       isFree: data.isFree || false,
-      episodePrice: data.episodePrice ? Math.round(parseFloat(data.episodePrice) * 100) : null, // 转换为分
-      priceCurrency: data.priceCurrency || 'CNY',
+      priceCents: data.episodePrice ? Math.round(parseFloat(data.episodePrice) * 100) : null, // 转换为分
       lockType: 'PAID_PER_EPISODE',
-      status: data.status || 'DRAFT'
+      status: data.status || 'DRAFT',
+      updatedAt: new Date()
     }
     console.log('Mapped episode data for database:', episodeData)
     
     // 检查该剧目下是否已存在相同集数
-    const existingEpisode = await prisma.episode.findFirst({
+    const existingEpisode = await prisma.episodes.findFirst({
       where: {
         titleId: data.titleId,
         epNumber: data.episodeNum || 1
@@ -92,10 +94,10 @@ export async function POST(request: NextRequest) {
       )
     }
     
-    const episode = await prisma.episode.create({
+    const episode = await prisma.episodes.create({
       data: episodeData,
       include: {
-        title: {
+        titles: {
           select: {
             id: true,
             name: true,

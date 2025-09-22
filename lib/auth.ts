@@ -6,7 +6,7 @@ import { prisma } from './prisma'
 import { compare } from 'bcryptjs'
 
 export const authOptions: NextAuthOptions = {
-  adapter: PrismaAdapter(prisma),
+  // adapter: PrismaAdapter(prisma), // 暂时禁用adapter，使用JWT策略
   providers: [
     CredentialsProvider({
       name: 'credentials',
@@ -19,43 +19,37 @@ export const authOptions: NextAuthOptions = {
           return null
         }
 
-        const user = await prisma.user.findUnique({
+        const admin = await prisma.admins.findUnique({
           where: {
             email: credentials.email
           },
           include: {
-            roles: {
-              include: {
-                role: {
-                  include: {
-                    permissions: {
-                      include: {
-                        permission: true
-                      }
-                    }
-                  }
-                }
-              }
-            }
+            permissions: true
           }
         })
 
-        if (!user) {
+        if (!admin) {
           return null
         }
 
-        // 对于演示目的，我们使用简单的密码验证
-        // 在生产环境中，应该使用哈希密码
-        if (credentials.password === 'admin123' && user.email === 'admin@dramini.com') {
+        // 验证密码
+        if (!admin.password) {
+          return null
+        }
+        
+        const isValidPassword = await compare(credentials.password, admin.password)
+        if (!isValidPassword) {
+          return null
+        }
+        
+        if (admin.status === 'ACTIVE') {
           return {
-            id: user.id,
-            email: user.email,
-            name: user.name,
-            image: user.avatar,
-            roles: user.roles?.map((ur: any) => ur.role.name) || [],
-            permissions: user.roles?.flatMap((ur: any) => 
-              ur.role.permissions?.map((rp: any) => rp.permission.key) || []
-            ) || []
+            id: admin.id,
+            email: admin.email,
+            name: admin.name,
+            image: admin.avatar,
+            role: admin.role,
+            permissions: admin.permissions?.map((p: any) => p.permissionKey) || []
           } as any
         }
 
@@ -73,16 +67,16 @@ export const authOptions: NextAuthOptions = {
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
-        token.roles = (user as any).roles
+        token.role = (user as any).role
         token.permissions = (user as any).permissions
       }
       return token
     },
     async session({ session, token }) {
       if (token) {
-        session.user.id = token.sub!
-        session.user.roles = (token as any).roles || []
-        session.user.permissions = (token as any).permissions || []
+        ;(session.user as any).id = token.sub!
+        ;(session.user as any).role = (token as any).role || 'ADMIN'
+        ;(session.user as any).permissions = (token as any).permissions || []
       }
       return session
     },

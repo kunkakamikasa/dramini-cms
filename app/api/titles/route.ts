@@ -1,13 +1,11 @@
 import { NextResponse } from 'next/server'
-import { PrismaClient } from '@prisma/client'
-
-const prisma = new PrismaClient()
+import { prisma } from '@/lib/prisma'
 
 export async function GET() {
   try {
-    const titles = await prisma.title.findMany({
+    const titles = await prisma.titles.findMany({
       include: {
-        category: {
+        categories: {
           select: { name: true }
         },
         tags: {
@@ -20,7 +18,7 @@ export async function GET() {
         episodes: {
           select: { id: true }
         },
-        createdBy: {
+        users_titles_createdByIdTousers: {
           select: { name: true }
         }
       },
@@ -33,3 +31,5 @@ export async function GET() {
     return NextResponse.json([], { status: 500 })
   }
 }
+
+

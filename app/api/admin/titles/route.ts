@@ -10,7 +10,6 @@ const createTitleSchema = z.object({
   slug: z.string().min(1, 'URL别名不能为空'),
   synopsis: z.string().optional(),
   coverImageId: z.string().optional(),
-  previewImage: z.string().optional(),
   categoryId: z.string().optional(),
   language: z.string().default('zh'),
   tagIds: z.array(z.string()).optional(),
@@ -62,13 +61,13 @@ export async function GET(request: NextRequest) {
     }
 
     const [titles, total] = await Promise.all([
-      prisma.title.findMany({
+      prisma.titles.findMany({
         where,
         skip,
         take: limit,
         orderBy: { createdAt: 'desc' },
         include: {
-          category: true,
+          categories: true,
           tags: {
             include: {
               tag: true
@@ -82,14 +81,14 @@ export async function GET(request: NextRequest) {
               status: true
             }
           },
-          createdBy: {
+          users_titles_createdByIdTousers: {
             select: {
               id: true,
               name: true,
               email: true
             }
           },
-          updatedBy: {
+          users_titles_updatedByIdTousers: {
             select: {
               id: true,
               name: true,
@@ -98,7 +97,7 @@ export async function GET(request: NextRequest) {
           }
         }
       }),
-      prisma.title.count({ where })
+      prisma.titles.count({ where })
     ])
 
     return NextResponse.json({
@@ -133,7 +132,7 @@ export async function POST(request: NextRequest) {
     const validatedData = createTitleSchema.parse(body)
 
     // 检查 slug 是否已存在
-    const existingTitle = await prisma.title.findUnique({
+    const existingTitle = await prisma.titles.findUnique({
       where: { slug: validatedData.slug }
     })
 
@@ -144,41 +143,43 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const userId = session.user.id
+    const userId = (session.user as any).id
 
     // 创建标题
-    const title = await prisma.title.create({
+    const title = await prisma.titles.create({
       data: {
+        id: require('crypto').randomUUID(),
         name: validatedData.name,
         slug: validatedData.slug,
         synopsis: validatedData.synopsis,
         coverImageId: validatedData.coverImageId,
-        previewImage: validatedData.previewImage,
         categoryId: validatedData.categoryId,
         language: validatedData.language,
         createdById: userId,
         updatedById: userId,
+        updatedAt: new Date(),
         tags: validatedData.tagIds ? {
           create: validatedData.tagIds.map(tagId => ({
+            id: require('crypto').randomUUID(),
             tagId
           }))
         } : undefined
       },
       include: {
-        category: true,
+        categories: true,
         tags: {
           include: {
             tag: true
           }
         },
-        createdBy: {
+        users_titles_createdByIdTousers: {
           select: {
             id: true,
             name: true,
             email: true
           }
         },
-        updatedBy: {
+        users_titles_updatedByIdTousers: {
           select: {
             id: true,
             name: true,

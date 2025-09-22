@@ -1,16 +1,14 @@
 import { NextResponse } from 'next/server'
-import { PrismaClient } from '@prisma/client'
-
-const prisma = new PrismaClient()
+import { prisma } from '@/lib/prisma'
 
 export async function GET() {
   try {
     const items = await prisma.sectionContent.findMany({
       where: { section: 'trending' },
       include: {
-        title: {
+        titles: {
           include: {
-            category: { select: { name: true } }
+            categories: { select: { name: true } }
           }
         }
       },
@@ -22,12 +20,12 @@ export async function GET() {
       movieId: item.titleId,
       order: item.order,
       movie: {
-        id: item.title.id,
-        name: item.title.name,
-        mainTitle: item.title.mainTitle,
-        subTitle: item.title.subTitle,
-        coverUrl: item.title.coverUrl,
-        category: item.title.category
+        id: item.titles.id,
+        name: item.titles.name,
+        mainTitle: item.titles.mainTitle,
+        subTitle: item.titles.subTitle,
+        coverUrl: item.titles.coverUrl,
+        category: item.titles.categories
       },
       createdAt: item.createdAt
     }))

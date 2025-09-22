@@ -1,7 +1,7 @@
+export const dynamic = "force-dynamic";
 import { NextResponse } from 'next/server'
-import { PrismaClient } from '@prisma/client'
-
-const prisma = new PrismaClient()
+import { prisma } from '@/lib/prisma'
+import crypto from 'crypto'
 
 export async function GET(request: Request) {
   try {
@@ -19,16 +19,16 @@ export async function GET(request: Request) {
       where.isOnline = true
     }
 
-    const movies = await prisma.title.findMany({
+    const movies = await prisma.titles.findMany({
       where,
       include: {
-        category: {
+        categories: {
           select: { id: true, name: true }
         },
         episodes: {
           select: { id: true }
         },
-        createdBy: {
+        users_titles_createdByIdTousers: {
           select: { name: true }
         }
       },
@@ -51,8 +51,9 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Name and slug are required' }, { status: 400 })
     }
 
-    const movie = await prisma.title.create({
+    const movie = await prisma.titles.create({
       data: {
+        id: crypto.randomUUID(),
         name: data.name,
         mainTitle: data.mainTitle || null,
         subTitle: data.subTitle || null,
@@ -69,7 +70,8 @@ export async function POST(request: Request) {
         bundlePriceCurrency: data.bundlePriceCurrency || 'CNY',
         bundlePriceCoins: data.bundlePriceCoins ? parseInt(data.bundlePriceCoins) : null,
         createdById: 'system',
-        updatedById: 'system'
+        updatedById: 'system',
+        updatedAt: new Date()
       }
     })
     

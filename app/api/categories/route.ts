@@ -1,11 +1,10 @@
+export const dynamic = "force-dynamic";
 import { NextResponse } from 'next/server'
-import { PrismaClient } from '@prisma/client'
-
-const prisma = new PrismaClient()
+import { prisma } from '@/lib/prisma'
 
 export async function GET() {
   try {
-    const categories = await prisma.category.findMany({
+    const categories = await prisma.categories.findMany({
       include: {
         _count: {
           select: { titles: true }
@@ -25,7 +24,7 @@ export async function POST(request: Request) {
     const data = await request.json()
     
     // 检查slug是否已存在
-    const existing = await prisma.category.findUnique({
+    const existing = await prisma.categories.findUnique({
       where: { slug: data.slug }
     })
     
@@ -33,11 +32,13 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'URL别名已存在' }, { status: 400 })
     }
 
-    const category = await prisma.category.create({
+    const category = await prisma.categories.create({
       data: {
+        id: require('crypto').randomUUID(),
         name: data.name,
         slug: data.slug,
-        order: data.order
+        order: data.order,
+        updatedAt: new Date()
       }
     })
     
