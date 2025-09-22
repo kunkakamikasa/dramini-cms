@@ -1,0 +1,22 @@
+model Episode {
+  id             String        @id @default(cuid())
+  titleId        String
+  epNumber       Int           // 数据库实际字段名
+  name           String        // 数据库中是必填的
+  durationSec    Int?          // 数据库实际字段名
+  videoId        String?       // 数据库实际字段名
+  isFreePreview  Boolean       @default(false)  // 数据库实际字段名
+  lockType       String        @default("PAID_PER_EPISODE")
+  priceCents     Int?
+  status         String        @default("DRAFT")
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  // Relations
+  title      Title      @relation(fields: [titleId], references: [id], onDelete: Cascade)
+  purchases  Purchase[]
+  flagReports FlagReport[]
+
+  @@unique([titleId, epNumber])
+  @@map("episodes")
+}

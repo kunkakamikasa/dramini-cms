@@ -1,0 +1,86 @@
+// 需要在 src/main.ts 中添加影片库查询API
+app.get('/api/v1/public/movie-library', async (req, reply) => {
+  try {
+    const q = (req.query as any) || {}
+    let where = { isOnline: true }
+    
+    if (q.hasBanner === 'true') {
+      where = { ...where, bannerUrl: { not: null } }
+    }
+    
+    if (q.category) {
+      where = { ...where, category: { slug: q.category } }
+    }
+    
+    const movies = await prisma.title.findMany({
+      where,
+      select: {
+        id: true, slug: true, name: true, mainTitle: true, subTitle: true,
+        coverUrl: true, bannerUrl: true, jumpUrl: true, rating: true,
+        category: { select: { id: true, name: true } }
+      },
+      orderBy: { createdAt: 'desc' }
+    })
+    
+    return { ok: true, items: movies }
+  } catch (error) {
+    console.error('Movie library API error:', error)
+    return { ok: false, error: 'Database error' }
+  }
+})
+
+// 轮播图API
+app.get('/api/v1/public/hero-banners', async (req, reply) => {
+  const items = await prisma.sectionContent.findMany({
+    where: { section: 'hero', isActive: true },
+    include: {
+      title: {
+        select: {
+          name: true, mainTitle: true, subTitle: true,
+          bannerUrl: true, jumpUrl: true
+        }
+      }
+    },
+    orderBy: { order: 'asc' }
+  })
+  
+  return { ok: true, items }
+})
+
+// New Release API
+app.get('/api/v1/public/new-release', async (req, reply) => {
+  const items = await prisma.sectionContent.findMany({
+    where: { section: 'new_release' },
+    include: {
+      title: {
+        select: {
+          id: true, name: true, mainTitle: true, subTitle: true,
+          coverUrl: true, jumpUrl: true, rating: true,
+          category: { select: { name: true } }
+        }
+      }
+    },
+    orderBy: { order: 'asc' }
+  })
+  
+  return { ok: true, items }
+})
+
+// Trending Now API
+app.get('/api/v1/public/trending-now', async (req, reply) => {
+  const items = await prisma.sectionContent.findMany({
+    where: { section: 'trending' },
+    include: {
+      title: {
+        select: {
+          id: true, name: true, mainTitle: true, subTitle: true,
+          coverUrl: true, jumpUrl: true, rating: true,
+          category: { select: { name: true } }
+        }
+      }
+    },
+    orderBy: { order: 'asc' }
+  })
+  
+  return { ok: true, items }
+})

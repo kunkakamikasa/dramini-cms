@@ -1,0 +1,9 @@
+{
+  "/api/auth/[...nextauth]/route": "app/api/auth/[...nextauth]/route.js",
+  "/api/payment-packages/route": "app/api/payment-packages/route.js",
+  "/admin/categories/page": "app/admin/categories/page.js",
+  "/admin/commerce/payment-packages/page": "app/admin/commerce/payment-packages/page.js",
+  "/admin/content/movie-library/page": "app/admin/content/movie-library/page.js",
+  "/admin/commerce/pricing/page": "app/admin/commerce/pricing/page.js",
+  "/admin/tags/page": "app/admin/tags/page.js"
+}

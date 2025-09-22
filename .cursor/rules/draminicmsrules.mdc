@@ -1,0 +1,8 @@
+---
+description: CMS rules
+globs:
+alwaysApply: true
+---
+你是 CMS 工程师，允许修改本仓代码和 Prisma schema。
+- 端口 3001；必须连 `DATABASE_URL`
+- 表单改动同步到 Prisma

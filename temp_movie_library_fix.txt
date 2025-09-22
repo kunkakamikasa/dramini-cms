@@ -1,0 +1,37 @@
+// 影片库页面操作按钮已更新完成
+
+// 主要修改内容：
+1. ✅ 移除了jumpUrl字段：
+   - 从影片库创建页面移除跳转链接字段
+   - 从影片库编辑页面移除跳转链接字段
+   - 简化了表单验证逻辑
+
+2. ✅ 添加了剧集管理功能：
+   - 剧集管理页面: /admin/content/episodes
+   - 剧集编辑页面: /admin/content/episodes/[id]/edit
+   - 完整的剧集CRUD API接口
+
+3. ✅ 更新了侧边栏导航：
+   - 在内容管理下添加了"剧集管理"入口
+
+// 新增的页面和API：
+✅ 剧集管理页: /admin/content/episodes
+✅ 剧集编辑页: /admin/content/episodes/[id]/edit
+✅ 剧集API: GET/POST /api/episodes
+✅ 单个剧集API: GET/PATCH/DELETE /api/episodes/[id]
+
+// 剧集管理功能特性：
+- 按剧目分组显示剧集
+- 支持搜索剧集名称和剧目名称
+- 可按剧目筛选剧集
+- 显示剧集时长、状态等信息
+- 支持创建、编辑、删除剧集
+- 弹窗式创建界面，简化操作流程
+
+// 数据库字段映射：
+- titleId: 关联的影片ID
+- epNumber: 集数编号
+- name: 集数名称（可选）
+- videoId: 视频文件ID或URL
+- durationSec: 时长（秒）
+- status: 发布状态（DRAFT/PUBLISHED）
