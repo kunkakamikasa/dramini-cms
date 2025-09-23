@@ -44,14 +44,10 @@ export async function PUT(
       data: {
         name: data.name,
         synopsis: data.synopsis,
-        coverImageId: data.coverUrl,
+        coverImageId: data.coverImageId,
         categoryId: data.categoryId,
         status: data.status === 'PUBLISHED' ? 'PUBLISHED' : 'DRAFT',
         rating: data.rating ? parseFloat(data.rating) : null,
-        freeUntilEpisode: data.freeUntilEpisode ? parseInt(data.freeUntilEpisode) : null,
-        bundlePrice: data.bundlePrice ? Math.round(parseFloat(data.bundlePrice) * 100) : null, // 转换为分
-        bundlePriceCurrency: data.bundlePriceCurrency || 'CNY',
-        bundlePriceCoins: data.bundlePriceCoins ? parseInt(data.bundlePriceCoins) : null,
         updatedAt: new Date()
       },
       include: {
