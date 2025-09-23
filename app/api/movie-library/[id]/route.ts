@@ -43,14 +43,10 @@ export async function PUT(
       where: { id: params.id },
       data: {
         name: data.name,
-        mainTitle: data.mainTitle,
-        subTitle: data.subTitle,
         synopsis: data.synopsis,
-        coverUrl: data.coverUrl,
-        bannerUrl: data.bannerUrl,
+        coverImageId: data.coverUrl,
         categoryId: data.categoryId,
-        status: data.status,
-        isOnline: data.isOnline,
+        status: data.status === 'PUBLISHED' ? 'PUBLISHED' : 'DRAFT',
         rating: data.rating ? parseFloat(data.rating) : null,
         freeUntilEpisode: data.freeUntilEpisode ? parseInt(data.freeUntilEpisode) : null,
         bundlePrice: data.bundlePrice ? Math.round(parseFloat(data.bundlePrice) * 100) : null, // 转换为分
