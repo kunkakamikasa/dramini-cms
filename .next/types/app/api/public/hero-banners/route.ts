@@ -1,8 +1,8 @@
-// File: /Users/mayingkun/mkwork/cursorproject/H5/DraminiCMS/app/api/hero-banners/route.ts
-import * as entry from '../../../../../app/api/hero-banners/route.js'
+// File: /Users/mayingkun/mkwork/cursorproject/H5/DraminiCMS/app/api/public/hero-banners/route.ts
+import * as entry from '../../../../../../app/api/public/hero-banners/route.js'
 import type { NextRequest } from 'next/server.js'
 
-type TEntry = typeof import('../../../../../app/api/hero-banners/route.js')
+type TEntry = typeof import('../../../../../../app/api/public/hero-banners/route.js')
 
 // Check that the entry is a valid entry
 checkFields<Diff<{
