@@ -1,49 +1,74 @@
 'use client'
 
-export const dynamic = 'force-dynamic';
-
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
-import { ArrowLeft, Save, Loader2 } from 'lucide-react'
-import Link from 'next/link'
+import { Save, Loader2, Upload, Image as ImageIcon } from 'lucide-react'
 import toast from 'react-hot-toast'
+
+interface FormData {
+  name: string
+  slug: string
+  synopsis: string
+  categoryId: string
+  language: string
+  status: string
+  coverImageId: string
+  previewImage: string
+}
 
 export default function CreateTitlePage() {
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
-  const [formData, setFormData] = useState({
+  const [isUploading, setIsUploading] = useState(false)
+  const [formData, setFormData] = useState<FormData>({
     name: '',
     slug: '',
     synopsis: '',
-    coverImageId: '',
-    previewImage: '',
-    language: 'zh',
     categoryId: '',
-    tagIds: [] as string[]
+    language: 'zh',
+    status: 'DRAFT',
+    coverImageId: '',
+    previewImage: ''
   })
 
-  const handleInputChange = (field: string, value: string) => {
-    setFormData(prev => ({
-      ...prev,
-      [field]: value
-    }))
+  const handleInputChange = (field: keyof FormData, value: string) => {
+    setFormData(prev => ({ ...prev, [field]: value }))
+  }
 
-    // 自动生成 slug
-    if (field === 'name' && value) {
-      const slug = value
-        .toLowerCase()
-        .replace(/[^\w\s-]/g, '')
-        .replace(/[\s_-]+/g, '-')
-        .replace(/^-+|-+$/g, '')
+  const handleFileUpload = async (file: File, type: 'cover' | 'preview') => {
+    setIsUploading(true)
+    try {
+      const formData = new FormData()
+      formData.append('file', file)
+
+      const response = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData
+      })
+
+      if (!response.ok) {
+        throw new Error('Upload failed')
+      }
+
+      const result = await response.json()
       
-      setFormData(prev => ({
-        ...prev,
-        slug
-      }))
+      if (type === 'cover') {
+        setFormData(prev => ({ ...prev, coverImageId: result.imageUrl }))
+      } else {
+        setFormData(prev => ({ ...prev, previewImage: result.imageUrl }))
+      }
+      
+      toast.success('图片上传成功！')
+    } catch (error) {
+      toast.error('图片上传失败')
+    } finally {
+      setIsUploading(false)
     }
   }
 
@@ -52,188 +77,224 @@ export default function CreateTitlePage() {
     setIsLoading(true)
 
     try {
-      const response = await fetch('/api/admin/titles', {
+      const response = await fetch('/api/movie-library', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData)
       })
 
       if (!response.ok) {
-        const error = await response.json()
-        throw new Error(error.error?.message || '创建失败')
+        throw new Error('Failed to create title')
       }
 
-      const result = await response.json()
-      toast.success('标题创建成功')
-      router.push(`/admin/titles/${result.data.id}/overview`)
+      toast.success('剧目创建成功！')
+      router.push('/admin/content/movie-library')
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : '创建失败')
+      toast.error('创建失败')
     } finally {
       setIsLoading(false)
     }
   }
 
   return (
-    <div className="space-y-6">
-      {/* 页面标题 */}
-      <div className="flex items-center space-x-4">
-        <Link href="/admin/titles/list">
-          <Button variant="ghost" size="sm">
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            返回列表
-          </Button>
-        </Link>
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">创建标题</h1>
-          <p className="text-gray-600">创建新的短剧标题</p>
-        </div>
+    <div className="container mx-auto py-6">
+      <div className="mb-6">
+        <h1 className="text-2xl font-bold text-gray-900">创建新剧目</h1>
+        <p className="text-gray-600">填写剧目信息并上传相关图片</p>
       </div>
 
-      <form onSubmit={handleSubmit}>
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* 主要信息 */}
-          <div className="lg:col-span-2 space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>基本信息</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      标题名称 *
-                    </label>
-                    <Input
-                      value={formData.name}
-                      onChange={(e) => handleInputChange('name', e.target.value)}
-                      placeholder="输入标题名称"
-                      required
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      URL别名 *
-                    </label>
-                    <Input
-                      value={formData.slug}
-                      onChange={(e) => handleInputChange('slug', e.target.value)}
-                      placeholder="url-slug"
-                      required
-                    />
-                  </div>
-                </div>
+      <form onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* 主要内容 */}
+        <div className="lg:col-span-2 space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>基本信息</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div>
+                <Label htmlFor="name">剧目名称 *</Label>
+                <Input
+                  id="name"
+                  value={formData.name}
+                  onChange={(e) => handleInputChange('name', e.target.value)}
+                  placeholder="请输入剧目名称"
+                  required
+                />
+              </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    简介
-                  </label>
-                  <Textarea
-                    value={formData.synopsis}
-                    onChange={(e) => handleInputChange('synopsis', e.target.value)}
-                    placeholder="输入标题简介"
-                    rows={4}
-                  />
-                </div>
+              <div>
+                <Label htmlFor="slug">URL 别名 *</Label>
+                <Input
+                  id="slug"
+                  value={formData.slug}
+                  onChange={(e) => handleInputChange('slug', e.target.value)}
+                  placeholder="url-friendly-name"
+                  required
+                />
+              </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    语言
-                  </label>
-                  <select
-                    value={formData.language}
-                    onChange={(e) => handleInputChange('language', e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  >
-                    <option value="zh">中文</option>
-                    <option value="en">English</option>
-                  </select>
-                </div>
-              </CardContent>
-            </Card>
+              <div>
+                <Label htmlFor="synopsis">剧情简介</Label>
+                <Textarea
+                  id="synopsis"
+                  value={formData.synopsis}
+                  onChange={(e) => handleInputChange('synopsis', e.target.value)}
+                  placeholder="请输入剧情简介"
+                  rows={4}
+                />
+              </div>
 
-            {/* 媒体信息 */}
-            <Card>
-              <CardHeader>
-                <CardTitle>媒体信息</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    封面图片 URL
-                  </label>
+              <div>
+                <Label htmlFor="categoryId">分类</Label>
+                <Select value={formData.categoryId} onValueChange={(value) => handleInputChange('categoryId', value)}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="选择分类" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="df80afd2-1f19-4b86-9b84-a1012103668e">11</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div>
+                <Label htmlFor="language">语言</Label>
+                <Select value={formData.language} onValueChange={(value) => handleInputChange('language', value)}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="zh">中文</SelectItem>
+                    <SelectItem value="en">English</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div>
+                <Label htmlFor="status">状态</Label>
+                <Select value={formData.status} onValueChange={(value) => handleInputChange('status', value)}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="DRAFT">草稿</SelectItem>
+                    <SelectItem value="PUBLISHED">已发布</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>图片设置</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div>
+                <Label>封面图片</Label>
+                <div className="flex items-center space-x-2">
                   <Input
                     value={formData.coverImageId}
                     onChange={(e) => handleInputChange('coverImageId', e.target.value)}
-                    placeholder="https://example.com/cover.jpg"
+                    placeholder="封面图片URL"
                     type="url"
                   />
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0]
+                      if (file) handleFileUpload(file, 'cover')
+                    }}
+                    className="hidden"
+                    id="cover-upload"
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => document.getElementById('cover-upload')?.click()}
+                    disabled={isUploading}
+                  >
+                    {isUploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
+                    上传
+                  </Button>
                 </div>
+                {formData.coverImageId && (
+                  <div className="mt-2">
+                    <img src={formData.coverImageId} alt="封面预览" className="w-32 h-20 object-cover rounded" />
+                  </div>
+                )}
+              </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    首页预览图 URL
-                  </label>
+              <div>
+                <Label>首页预览图</Label>
+                <div className="flex items-center space-x-2">
                   <Input
                     value={formData.previewImage}
                     onChange={(e) => handleInputChange('previewImage', e.target.value)}
-                    placeholder="https://example.com/preview.jpg"
+                    placeholder="首页预览图URL"
                     type="url"
                   />
-                  <p className="text-xs text-gray-500 mt-1">
-                    用于首页大图展示的预览图片
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* 侧边栏 */}
-          <div className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>操作</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0]
+                      if (file) handleFileUpload(file, 'preview')
+                    }}
+                    className="hidden"
+                    id="preview-upload"
+                  />
                   <Button
-                    type="submit"
-                    className="w-full"
-                    disabled={isLoading}
+                    type="button"
+                    variant="outline"
+                    onClick={() => document.getElementById('preview-upload')?.click()}
+                    disabled={isUploading}
                   >
-                    {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                    <Save className="mr-2 h-4 w-4" />
-                    创建标题
+                    {isUploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
+                    上传
                   </Button>
-                  
-                  <Link href="/admin/titles/list" className="block">
-                    <Button variant="outline" className="w-full">
-                      取消
-                    </Button>
-                  </Link>
                 </div>
-              </CardContent>
-            </Card>
+                {formData.previewImage && (
+                  <div className="mt-2">
+                    <img src={formData.previewImage} alt="预览图" className="w-32 h-20 object-cover rounded" />
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
 
-            <Card>
-              <CardHeader>
-                <CardTitle>提示</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-sm text-gray-600 space-y-2">
-                  <p>• 标题名称将自动生成 URL 别名</p>
-                  <p>• 封面图片用于列表展示</p>
-                  <p>• 预览图片用于首页大图展示</p>
-                  <p>• 创建后可以继续添加集数</p>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
+        {/* 侧边栏 */}
+        <div className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>操作</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                <Button
+                  type="submit"
+                  className="w-full"
+                  disabled={isLoading}
+                >
+                  {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                  <Save className="mr-2 h-4 w-4" />
+                  创建剧目
+                </Button>
+                
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="w-full"
+                  onClick={() => router.back()}
+                >
+                  取消
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
         </div>
       </form>
     </div>
   )
 }
-
-
