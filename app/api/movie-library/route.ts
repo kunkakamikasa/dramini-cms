@@ -6,17 +6,12 @@ import crypto from 'crypto'
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url)
-    const hasBanner = searchParams.get('hasBanner')
     const online = searchParams.get('online')
 
     let where: any = {}
     
-    if (hasBanner === 'true') {
-      where.bannerUrl = { not: null }
-    }
-    
     if (online === 'true') {
-      where.isOnline = true
+      where.status = 'PUBLISHED' // 使用status字段而不是isOnline
     }
 
     const movies = await prisma.titles.findMany({
@@ -34,7 +29,20 @@ export async function GET(request: Request) {
       },
       orderBy: { createdAt: 'desc' }
     })
-    return NextResponse.json(movies)
+    
+    // 转换数据结构以匹配前端期望
+    const moviesWithCreatedBy = movies.map(movie => ({
+      ...movie,
+      createdBy: movie.users_titles_createdByIdTousers,
+      isOnline: movie.status === 'PUBLISHED', // 修正：status判断上线状态
+      // 添加前端期望的字段映射
+      mainTitle: movie.name, // name → mainTitle
+      subTitle: movie.synopsis, // synopsis → subTitle
+      coverUrl: movie.coverImageId, // coverImageId → coverUrl
+      bannerUrl: null // 暂时设为null，因为数据库没有此字段
+    }))
+    
+    return NextResponse.json(moviesWithCreatedBy)
   } catch (error) {
     console.error('Failed to fetch movies:', error)
     return NextResponse.json([], { status: 500 })
@@ -55,22 +63,14 @@ export async function POST(request: Request) {
       data: {
         id: crypto.randomUUID(),
         name: data.name,
-        mainTitle: data.mainTitle || null,
-        subTitle: data.subTitle || null,
         slug: data.slug,
         synopsis: data.synopsis || null,
-        coverUrl: data.coverUrl || null,
-        bannerUrl: data.bannerUrl || null,
+        coverImageId: data.coverImageId || null,
         categoryId: data.categoryId || null,
         language: data.language || 'zh',
         status: data.status || 'DRAFT',
-        isOnline: data.isOnline || false,
-        freeUntilEpisode: data.freeUntilEpisode ? parseInt(data.freeUntilEpisode) : null,
-        bundlePrice: data.bundlePrice ? Math.round(parseFloat(data.bundlePrice) * 100) : null, // 转换为分
-        bundlePriceCurrency: data.bundlePriceCurrency || 'CNY',
-        bundlePriceCoins: data.bundlePriceCoins ? parseInt(data.bundlePriceCoins) : null,
-        createdById: 'system',
-        updatedById: 'system',
+        createdById: 'admin-1', // 使用存在的用户ID
+        updatedById: 'admin-1', // 使用存在的用户ID
         updatedAt: new Date()
       }
     })

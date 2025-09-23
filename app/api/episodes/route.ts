@@ -34,11 +34,14 @@ export async function GET(request: NextRequest) {
       duration: episode.durationSec,
       videoUrl: episode.videoId,
       isOnline: episode.isFreePreview,
+      // 修正：titles → title
+      title: episode.titles, // 将titles字段映射为title
       // 保留原字段以防需要
       epNumber: episode.epNumber,
       durationSec: episode.durationSec,
       videoId: episode.videoId,
-      isFreePreview: episode.isFreePreview
+      isFreePreview: episode.isFreePreview,
+      titles: episode.titles // 保留原字段
     }))
 
     return NextResponse.json(mappedEpisodes)
@@ -69,12 +72,11 @@ export async function POST(request: NextRequest) {
       epNumber: data.episodeNum || 1,
       name: data.name || `第${data.episodeNum || 1}集`,
       durationSec: data.duration ? parseInt(data.duration) : null,
-      videoId: data.videoUrl || null,
-      isFreePreview: data.isOnline || false,
-      isFree: data.isFree || false,
-      priceCents: data.episodePrice ? Math.round(parseFloat(data.episodePrice) * 100) : null, // 转换为分
+      videoId: data.videoUrl || null, // 修正：videoUrl → videoId
+      isFreePreview: data.isFreePreview || false, // 保持原字段
+      priceCents: data.episodePrice ? Math.round(parseFloat(data.episodePrice) * 100) : null,
       lockType: 'PAID_PER_EPISODE',
-      status: data.status || 'DRAFT',
+      status: data.status || 'DRAFT', // 修正：isOnline → status
       updatedAt: new Date()
     }
     console.log('Mapped episode data for database:', episodeData)

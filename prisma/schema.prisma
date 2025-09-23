@@ -11,8 +11,8 @@ model Role {
   id          String           @id @default(cuid())
   name        String           @unique
   description String?
-  createdAt   DateTime         @default(now())
-  updatedAt   DateTime         @updatedAt
+  createdAt   DateTime         @default(now()) @map("createdAt")
+  updatedAt   DateTime         @updatedAt @map("updatedAt")
   permissions RolePermission[]
   users       UserRole[]
 
@@ -24,7 +24,7 @@ model Permission {
   key         String           @unique
   name        String
   description String?
-  createdAt   DateTime         @default(now())
+  createdAt   DateTime         @default(now()) @map("createdAt")
   roles       RolePermission[]
 
   @@map("permissions")
@@ -32,8 +32,8 @@ model Permission {
 
 model UserRole {
   id     String @id @default(cuid())
-  userId String
-  roleId String
+  userId String @map("userId")
+  roleId String @map("roleId")
   role   Role   @relation(fields: [roleId], references: [id], onDelete: Cascade)
   user   users  @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -43,8 +43,8 @@ model UserRole {
 
 model RolePermission {
   id           String     @id @default(cuid())
-  roleId       String
-  permissionId String
+  roleId       String     @map("roleId")
+  permissionId String     @map("permissionId")
   permission   Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
   role         Role       @relation(fields: [roleId], references: [id], onDelete: Cascade)
 
@@ -56,8 +56,8 @@ model Tag {
   id        String     @id @default(cuid())
   slug      String     @unique
   name      String
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @updatedAt
+  createdAt DateTime   @default(now()) @map("createdAt")
+  updatedAt DateTime   @updatedAt @map("updatedAt")
   titles    TitleTag[]
 
   @@map("tags")
@@ -65,8 +65,8 @@ model Tag {
 
 model TitleTag {
   id      String @id @default(cuid())
-  titleId String
-  tagId   String
+  titleId String @map("titleId")
+  tagId   String @map("tagId")
   tag     Tag    @relation(fields: [tagId], references: [id], onDelete: Cascade)
   title   titles @relation(fields: [titleId], references: [id], onDelete: Cascade)
 
@@ -77,11 +77,11 @@ model TitleTag {
 model PricingPlan {
   id            String         @id @default(cuid())
   type          String
-  priceCents    Int
+  priceCents    Int            @map("priceCents")
   currency      String         @default("USD")
-  benefitsJson  String?
-  createdAt     DateTime       @default(now())
-  updatedAt     DateTime       @updatedAt
+  benefitsJson  String?        @map("benefitsJson")
+  createdAt     DateTime       @default(now()) @map("createdAt")
+  updatedAt     DateTime       @updatedAt @map("updatedAt")
   purchases     Purchase[]
   subscriptions Subscription[]
 
@@ -90,17 +90,17 @@ model PricingPlan {
 
 model Purchase {
   id          String       @id @default(cuid())
-  userId      String
-  titleId     String
-  episodeId   String?
-  planId      String?
-  amountCents Int
+  userId      String       @map("userId")
+  titleId     String       @map("titleId")
+  episodeId   String?      @map("episodeId")
+  planId      String?      @map("planId")
+  amountCents Int          @map("amountCents")
   currency    String       @default("USD")
   provider    String
   status      String       @default("PENDING")
-  extRef      String?
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
+  extRef      String?      @map("extRef")
+  createdAt   DateTime     @default(now()) @map("createdAt")
+  updatedAt   DateTime     @updatedAt @map("updatedAt")
   episode     episodes?    @relation(fields: [episodeId], references: [id])
   plan        PricingPlan? @relation(fields: [planId], references: [id])
   title       titles       @relation(fields: [titleId], references: [id])
@@ -111,13 +111,13 @@ model Purchase {
 
 model Subscription {
   id               String      @id @default(cuid())
-  userId           String
-  planId           String
+  userId           String      @map("userId")
+  planId           String      @map("planId")
   status           String      @default("ACTIVE")
-  currentPeriodEnd DateTime
-  extRef           String?
-  createdAt        DateTime    @default(now())
-  updatedAt        DateTime    @updatedAt
+  currentPeriodEnd DateTime    @map("currentPeriodEnd")
+  extRef           String?     @map("extRef")
+  createdAt        DateTime    @default(now()) @map("createdAt")
+  updatedAt        DateTime    @updatedAt @map("updatedAt")
   plan             PricingPlan @relation(fields: [planId], references: [id])
   user             users       @relation(fields: [userId], references: [id])
 
@@ -129,42 +129,40 @@ model Promotion {
   code       String   @unique
   type       String
   value      Int
-  startsAt   DateTime
-  endsAt     DateTime
-  usageLimit Int?
-  usedCount  Int      @default(0)
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  startsAt   DateTime @map("startsAt")
+  endsAt     DateTime @map("endsAt")
+  usageLimit Int?     @map("usageLimit")
+  usedCount  Int      @default(0) @map("usedCount")
+  createdAt  DateTime @default(now()) @map("createdAt")
+  updatedAt  DateTime @updatedAt @map("updatedAt")
 
   @@map("promotions")
 }
 
 model AuditLog {
   id          String   @id @default(cuid())
-  actorUserId String?
-  actorAdminId String?
+  actorUserId String   @map("actorUserId")
   action      String
   entity      String
-  entityId    String
-  beforeJson  String?
-  afterJson   String?
+  entityId    String   @map("entityId")
+  beforeJson  String?  @map("beforeJson")
+  afterJson   String?  @map("afterJson")
   ip          String?
-  createdAt   DateTime @default(now())
-  actor       users?   @relation(fields: [actorUserId], references: [id])
-  actorAdmin  admins?  @relation("AdminAuditLogs", fields: [actorAdminId], references: [id])
+  createdAt   DateTime @default(now()) @map("createdAt")
+  actor       users    @relation(fields: [actorUserId], references: [id])
 
   @@map("audit_logs")
 }
 
 model FlagReport {
   id        String    @id @default(cuid())
-  userId    String
-  titleId   String?
-  episodeId String?
+  userId    String    @map("userId")
+  titleId   String?   @map("titleId")
+  episodeId String?   @map("episodeId")
   reason    String
   status    String    @default("PENDING")
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  createdAt DateTime  @default(now()) @map("createdAt")
+  updatedAt DateTime  @updatedAt @map("updatedAt")
   episode   episodes? @relation(fields: [episodeId], references: [id])
   title     titles?   @relation(fields: [titleId], references: [id])
   user      users     @relation(fields: [userId], references: [id])
@@ -175,9 +173,9 @@ model FlagReport {
 model Setting {
   id        String   @id @default(cuid())
   key       String   @unique
-  valueJson String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  valueJson String   @map("valueJson")
+  createdAt DateTime @default(now()) @map("createdAt")
+  updatedAt DateTime @updatedAt @map("updatedAt")
 
   @@map("settings")
 }
@@ -186,7 +184,7 @@ model Locale {
   id           String        @id @default(cuid())
   code         String        @unique
   name         String
-  createdAt    DateTime      @default(now())
+  createdAt    DateTime      @default(now()) @map("createdAt")
   translations Translation[]
 
   @@map("locales")
@@ -195,14 +193,14 @@ model Locale {
 model Translation {
   id        String   @id @default(cuid())
   entity    String
-  entityId  String
+  entityId  String   @map("entityId")
   field     String
-  localeId  String
+  localeId  String   @map("localeId")
   value     String
   status    String   @default("DRAFT")
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  titleId   String?
+  createdAt DateTime @default(now()) @map("createdAt")
+  updatedAt DateTime @updatedAt @map("updatedAt")
+  titleId   String?  @map("titleId")
   locale    Locale   @relation(fields: [localeId], references: [id])
   title     titles?  @relation(fields: [titleId], references: [id])
 
@@ -215,10 +213,10 @@ model Collection {
   name           String
   slug           String           @unique
   type           String
-  ruleJson       String?
-  itemsOrderJson String?
-  createdAt      DateTime         @default(now())
-  updatedAt      DateTime         @updatedAt
+  ruleJson       String?          @map("ruleJson")
+  itemsOrderJson String?          @map("itemsOrderJson")
+  createdAt      DateTime         @default(now()) @map("createdAt")
+  updatedAt      DateTime         @updatedAt @map("updatedAt")
   items          CollectionItem[]
 
   @@map("collections")
@@ -226,8 +224,8 @@ model Collection {
 
 model CollectionItem {
   id           String     @id @default(cuid())
-  collectionId String
-  titleId      String
+  collectionId String     @map("collectionId")
+  titleId      String     @map("titleId")
   order        Int        @default(0)
   collection   Collection @relation(fields: [collectionId], references: [id], onDelete: Cascade)
   title        titles     @relation(fields: [titleId], references: [id], onDelete: Cascade)
@@ -241,24 +239,24 @@ model categories {
   slug      String   @unique
   name      String
   order     Int      @default(0)
-  createdAt DateTime @default(now())
-  updatedAt DateTime
+  createdAt DateTime @default(now()) @map("createdAt")
+  updatedAt DateTime @map("updatedAt")
   titles    titles[]
 }
 
 model episodes {
   id            String       @id
-  titleId       String
-  epNumber      Int
+  titleId       String       @map("titleId")
+  epNumber      Int          @map("epNumber")
   name          String
-  durationSec   Int?
-  videoId       String?
-  isFreePreview Boolean      @default(false)
-  lockType      String       @default("PAID_PER_EPISODE")
-  priceCents    Int?
+  durationSec   Int?         @map("durationSec")
+  videoId       String?      @map("videoId")
+  isFreePreview Boolean      @default(false) @map("isFreePreview")
+  lockType      String       @default("PAID_PER_EPISODE") @map("lockType")
+  priceCents    Int?         @map("priceCents")
   status        String       @default("DRAFT")
-  createdAt     DateTime     @default(now())
-  updatedAt     DateTime
+  createdAt     DateTime     @default(now()) @map("createdAt")
+  updatedAt     DateTime     @map("updatedAt")
   titles        titles       @relation(fields: [titleId], references: [id], onDelete: Cascade)
   flagReports   FlagReport[]
   purchases     Purchase[]
@@ -270,27 +268,18 @@ model titles {
   id                              String           @id
   slug                            String           @unique
   name                            String
-  mainTitle                       String?
-  subTitle                        String?
   synopsis                        String?
-  coverImageId                    String?
-  coverUrl                        String?
-  bannerUrl                       String?
-  isOnline                        Boolean          @default(false)
-  freeUntilEpisode                Int?
-  bundlePrice                     Int?
-  bundlePriceCurrency             String           @default("CNY")
-  bundlePriceCoins                Int?
+  coverImageId                    String?          @map("coverImageId")
   status                          String           @default("DRAFT")
   language                        String           @default("en")
-  createdById                     String
-  updatedById                     String
-  createdAt                       DateTime         @default(now())
-  updatedAt                       DateTime
-  releaseAt                       DateTime?
+  createdById                     String           @map("createdById")
+  updatedById                     String           @map("updatedById")
+  createdAt                       DateTime         @default(now()) @map("createdAt")
+  updatedAt                       DateTime         @map("updatedAt")
+  releaseAt                       DateTime?        @map("releaseAt")
   rating                          Float?
-  featuredWeight                  Int              @default(0)
-  categoryId                      String?
+  featuredWeight                  Int              @default(0) @map("featuredWeight")
+  categoryId                      String?          @map("categoryId")
   collections                     CollectionItem[]
   episodes                        episodes[]
   flagReports                     FlagReport[]
@@ -300,10 +289,8 @@ model titles {
   users_titles_createdByIdTousers users            @relation("titles_createdByIdTousers", fields: [createdById], references: [id])
   users_titles_updatedByIdTousers users            @relation("titles_updatedByIdTousers", fields: [updatedById], references: [id])
   translations                    Translation[]
-  sectionContent                  sectionContent[]
 }
 
-// 前台用户表（看剧用户）
 model users {
   id                               String         @id
   email                            String         @unique
@@ -311,8 +298,9 @@ model users {
   avatar                           String?
   provider                         String         @default("email")
   status                           String         @default("ACTIVE")
-  createdAt                        DateTime       @default(now())
-  updatedAt                        DateTime
+  createdAt                        DateTime       @default(now()) @map("createdAt")
+  updatedAt                        DateTime       @map("updatedAt")
+  password                         String?
   auditLogs                        AuditLog[]
   flagReports                      FlagReport[]
   purchases                        Purchase[]
@@ -320,76 +308,48 @@ model users {
   titles_titles_createdByIdTousers titles[]       @relation("titles_createdByIdTousers")
   titles_titles_updatedByIdTousers titles[]       @relation("titles_updatedByIdTousers")
   roles                            UserRole[]
-  userCoin                         userCoin?
 }
 
-// 后台管理员表
 model admins {
-  id           String              @id
-  email        String              @unique
-  name         String?
-  avatar       String?
-  password     String?
-  role         String              @default("ADMIN")
-  status       String              @default("ACTIVE")
-  lastLogin    DateTime?
-  createdAt    DateTime            @default(now())
-  updatedAt    DateTime            @updatedAt
-  permissions  AdminPermission[]
-  auditLogs    AuditLog[]         @relation("AdminAuditLogs")
+  id          String            @id
+  email       String            @unique
+  name        String?
+  avatar      String?
+  password    String?
+  role        String            @default("ADMIN")
+  status      String            @default("ACTIVE")
+  lastLogin   DateTime?         @map("last_login") @db.Timestamp(6)
+  createdAt   DateTime?         @default(now()) @map("created_at") @db.Timestamp(6)
+  updatedAt   DateTime?         @default(now()) @updatedAt @map("updated_at") @db.Timestamp(6)
+  permissions AdminPermission[]
 
   @@map("admins")
 }
 
-// 管理员权限表
 model AdminPermission {
-  id            String   @id @default(cuid())
-  adminId       String
-  permissionKey String
-  createdAt     DateTime @default(now())
-  admin         admins   @relation(fields: [adminId], references: [id], onDelete: Cascade)
+  id            String    @id @default(cuid())
+  adminId       String    @map("admin_id")
+  permissionKey String    @map("permission_key")
+  createdAt     DateTime? @default(now()) @map("created_at") @db.Timestamp(6)
+  admin         admins    @relation(fields: [adminId], references: [id], onDelete: Cascade, onUpdate: NoAction)
 
   @@unique([adminId, permissionKey])
   @@map("admin_permissions")
 }
 
-model sectionContent {
-  id        String   @id @default(cuid())
-  section   String
-  titleId   String
-  order     Int      @default(0)
-  isActive  Boolean  @default(true)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  titles    titles   @relation(fields: [titleId], references: [id], onDelete: Cascade)
+model SectionContent {
+  id          String   @id @default(uuid())
+  sectionType String   @map("section_type")
+  contentId   String   @map("content_id")
+  contentType String   @map("content_type") @default("movie")
+  title       String?
+  subtitle    String?
+  imageUrl    String?  @map("image_url")
+  jumpUrl     String?  @map("jump_url")
+  orderIndex  Int      @map("order_index") @default(0)
+  isActive    Boolean  @map("is_active") @default(true)
+  createdAt   DateTime @map("created_at") @default(now())
+  updatedAt   DateTime @map("updated_at") @updatedAt
 
-  @@unique([section, titleId])
   @@map("section_content")
-}
-
-model paymentPackage {
-  id          String   @id @default(cuid())
-  name        String
-  priceUsd    Int
-  baseCoins   Int
-  bonusCoins  Int      @default(0)
-  isFirstTime Boolean  @default(false)
-  description String?
-  order       Int      @default(0)
-  isActive    Boolean  @default(true)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  @@map("payment_packages")
-}
-
-model userCoin {
-  id        String   @id @default(cuid())
-  userId    String   @unique
-  amount    Int      @default(0)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  users     users    @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@map("user_coins")
 }

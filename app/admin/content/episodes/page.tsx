@@ -151,6 +151,12 @@ export default function GlobalEpisodesPage() {
   }
 
   const groupedEpisodes = filteredEpisodes.reduce((acc, episode) => {
+    // 添加空值检查
+    if (!episode.title || !episode.title.name) {
+      console.warn('Episode missing title:', episode)
+      return acc
+    }
+    
     const titleName = episode.title.name
     if (!acc[titleName]) {
       acc[titleName] = {

@@ -6,7 +6,10 @@ export async function PATCH(request: Request, { params }: { params: { id: string
     const data = await request.json()
     const movie = await prisma.titles.update({
       where: { id: params.id },
-      data: { isOnline: data.isOnline }
+      data: { 
+        status: data.isOnline ? 'PUBLISHED' : 'DRAFT',
+        updatedAt: new Date()
+      }
     })
     return NextResponse.json(movie)
   } catch (error) {

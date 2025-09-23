@@ -1,45 +1,23 @@
 export const dynamic = "force-dynamic";
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import crypto from 'crypto'
 
 export async function GET() {
   try {
-    const items = await prisma.sectionContent.findMany({
+    const banners = await prisma.sectionContent.findMany({
       where: { 
-        section: 'hero',
-        isActive: true
+        sectionType: 'hero_banner',
+        isActive: true 
       },
       include: {
-        titles: {
-          select: {
-            id: true, name: true, mainTitle: true, subTitle: true,
-            bannerUrl: true, slug: true, isOnline: true
-          }
-        }
+        // 这里需要根据contentId关联到titles表
+        // 暂时先返回基本信息
       },
-      orderBy: { order: 'asc' }
+      orderBy: { orderIndex: 'asc' }
     })
     
-    const formatted = items
-      .filter(item => item.titles.isOnline && item.titles.bannerUrl)
-      .map(item => ({
-        id: item.id,
-        movieId: item.titleId,
-        order: item.order,
-        isActive: item.isActive,
-        movie: {
-          id: item.titles.id,
-          name: item.titles.name,
-          mainTitle: item.titles.mainTitle,
-          subTitle: item.titles.subTitle,
-          bannerUrl: item.titles.bannerUrl,
-          slug: item.titles.slug,
-          isOnline: item.titles.isOnline
-        },
-        createdAt: item.createdAt
-      }))
-    
-    return NextResponse.json(formatted)
+    return NextResponse.json(banners)
   } catch (error) {
     console.error('Failed to fetch hero banners:', error)
     return NextResponse.json([], { status: 500 })
@@ -50,15 +28,18 @@ export async function POST(request: Request) {
   try {
     const data = await request.json()
     
-    const item = await prisma.sectionContent.create({
+    const banner = await prisma.sectionContent.create({
       data: {
-        section: 'hero',
-        titleId: data.movieId,
-        order: data.order
+        id: crypto.randomUUID(),
+        sectionType: 'hero_banner',
+        contentId: data.movieId,
+        contentType: 'movie',
+        orderIndex: data.order || 0,
+        isActive: true
       }
     })
     
-    return NextResponse.json(item)
+    return NextResponse.json(banner)
   } catch (error) {
     console.error('Failed to create hero banner:', error)
     return NextResponse.json({ error: 'Failed to create banner' }, { status: 500 })
