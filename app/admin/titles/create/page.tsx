@@ -19,6 +19,7 @@ interface FormData {
   language: string
   status: string
   coverImageId: string
+  bannerUrl: string
   previewImage: string
 }
 
@@ -34,6 +35,7 @@ export default function CreateTitlePage() {
     language: 'zh',
     status: 'DRAFT',
     coverImageId: '',
+    bannerUrl: '',
     previewImage: ''
   })
 
@@ -41,7 +43,7 @@ export default function CreateTitlePage() {
     setFormData(prev => ({ ...prev, [field]: value }))
   }
 
-  const handleFileUpload = async (file: File, type: 'cover' | 'preview') => {
+  const handleFileUpload = async (file: File, type: 'cover' | 'banner' | 'preview') => {
     setIsUploading(true)
     try {
       const formData = new FormData()
@@ -60,6 +62,8 @@ export default function CreateTitlePage() {
       
       if (type === 'cover') {
         setFormData(prev => ({ ...prev, coverImageId: result.imageUrl }))
+      } else if (type === 'banner') {
+        setFormData(prev => ({ ...prev, bannerUrl: result.imageUrl }))
       } else {
         setFormData(prev => ({ ...prev, previewImage: result.imageUrl }))
       }
@@ -221,6 +225,42 @@ export default function CreateTitlePage() {
                 {formData.coverImageId && (
                   <div className="mt-2">
                     <img src={formData.coverImageId} alt="封面预览" className="w-32 h-20 object-cover rounded" />
+                  </div>
+                )}
+              </div>
+
+              <div>
+                <Label>16:9轮播图 (可选)</Label>
+                <div className="flex items-center space-x-2">
+                  <Input
+                    value={formData.bannerUrl}
+                    onChange={(e) => handleInputChange('bannerUrl', e.target.value)}
+                    placeholder="16:9轮播图URL"
+                    type="url"
+                  />
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0]
+                      if (file) handleFileUpload(file, 'banner')
+                    }}
+                    className="hidden"
+                    id="banner-upload"
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => document.getElementById('banner-upload')?.click()}
+                    disabled={isUploading}
+                  >
+                    {isUploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
+                    上传
+                  </Button>
+                </div>
+                {formData.bannerUrl && (
+                  <div className="mt-2">
+                    <img src={formData.bannerUrl} alt="轮播图预览" className="w-32 h-18 object-cover rounded" />
                   </div>
                 )}
               </div>

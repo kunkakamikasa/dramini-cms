@@ -8,7 +8,19 @@ export async function GET(
   try {
     const title = await prisma.titles.findUnique({
       where: { id: params.id },
-      include: {
+      select: {
+        id: true,
+        slug: true,
+        name: true,
+        synopsis: true,
+        coverImageId: true,
+        bannerUrl: true, // 添加bannerUrl字段
+        status: true,
+        language: true,
+        categoryId: true,
+        rating: true,
+        createdAt: true,
+        updatedAt: true,
         categories: {
           select: {
             id: true,
@@ -45,6 +57,7 @@ export async function PUT(
         name: data.name,
         synopsis: data.synopsis,
         coverImageId: data.coverImageId,
+        bannerUrl: data.bannerUrl, // 添加bannerUrl字段更新
         categoryId: data.categoryId,
         status: data.status === 'PUBLISHED' ? 'PUBLISHED' : 'DRAFT',
         rating: data.rating ? parseFloat(data.rating) : null,

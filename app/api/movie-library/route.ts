@@ -16,7 +16,19 @@ export async function GET(request: Request) {
 
     const movies = await prisma.titles.findMany({
       where,
-      include: {
+      select: {
+        id: true,
+        name: true,
+        slug: true,
+        synopsis: true,
+        coverImageId: true,
+        bannerUrl: true, // 添加bannerUrl字段
+        status: true,
+        language: true,
+        categoryId: true,
+        rating: true,
+        createdAt: true,
+        updatedAt: true,
         categories: {
           select: { id: true, name: true }
         },
@@ -39,7 +51,7 @@ export async function GET(request: Request) {
       mainTitle: movie.name, // name → mainTitle
       subTitle: movie.synopsis, // synopsis → subTitle
       coverUrl: movie.coverImageId, // coverImageId → coverUrl
-      bannerUrl: null // 暂时设为null，因为数据库没有此字段
+      bannerUrl: movie.bannerUrl // 使用数据库中的bannerUrl字段
     }))
     
     return NextResponse.json(moviesWithCreatedBy)
@@ -66,6 +78,7 @@ export async function POST(request: Request) {
         slug: data.slug,
         synopsis: data.synopsis || null,
         coverImageId: data.coverImageId || null,
+        bannerUrl: data.bannerUrl || null, // 添加bannerUrl字段
         categoryId: data.categoryId || null,
         language: data.language || 'zh',
         status: data.status || 'DRAFT',

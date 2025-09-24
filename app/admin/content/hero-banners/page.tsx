@@ -75,13 +75,14 @@ export default function HeroBannersPage() {
     }
   }
 
-  const handleAddToBanner = async (movieId: string) => {
+  const handleAddToBanner = async (movieId: string, imageUrl?: string) => {
     try {
       const response = await fetch('/api/hero-banners', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
           movieId,
+          imageUrl, // 传递轮播图URL
           order: banners.length + 1
         })
       })
@@ -234,7 +235,7 @@ export default function HeroBannersPage() {
                       </div>
                       <Button 
                         size="sm"
-                        onClick={() => handleAddToBanner(movie.id)}
+                        onClick={() => handleAddToBanner(movie.id, movie.bannerUrl)}
                       >
                         选择
                       </Button>
@@ -276,10 +277,10 @@ export default function HeroBannersPage() {
                 <div className="flex items-start space-x-4">
                   {/* 轮播图预览 */}
                   <div className="w-32 h-18 bg-gray-200 rounded-lg overflow-hidden flex-shrink-0">
-                    {banner.movie.bannerUrl && (
+                    {banner.movie?.bannerUrl && (
                       <img 
-                        src={banner.movie.bannerUrl} 
-                        alt={banner.movie.name}
+                        src={banner.movie?.bannerUrl} 
+                        alt={banner.movie?.name || 'Banner'}
                         className="w-full h-full object-cover"
                       />
                     )}
@@ -289,7 +290,7 @@ export default function HeroBannersPage() {
                   <div className="flex-1">
                     <div className="flex items-center space-x-3 mb-2">
                       <h3 className="text-lg font-semibold text-gray-900">
-                        {banner.movie.name}
+                        {banner.movie?.name || '未知影片'}
                       </h3>
                       <Badge variant={banner.isActive ? "default" : "secondary"}>
                         {banner.isActive ? '启用' : '禁用'}
@@ -298,13 +299,13 @@ export default function HeroBannersPage() {
                     </div>
                     
                     <div className="space-y-1 text-sm text-gray-600">
-                      {banner.movie.mainTitle && (
-                        <div><span className="font-medium">主标题:</span> {banner.movie.mainTitle}</div>
+                      {banner.movie?.mainTitle && (
+                        <div><span className="font-medium">主标题:</span> {banner.movie?.mainTitle}</div>
                       )}
-                      {banner.movie.subTitle && (
-                        <div><span className="font-medium">副标题:</span> {banner.movie.subTitle}</div>
+                      {banner.movie?.subTitle && (
+                        <div><span className="font-medium">副标题:</span> {banner.movie?.subTitle}</div>
                       )}
-                      <div><span className="font-medium">跳转:</span> {banner.movie.jumpUrl}</div>
+                      <div><span className="font-medium">跳转:</span> {banner.movie?.jumpUrl || '无'}</div>
                       <div><span className="font-medium">添加时间:</span> {new Date(banner.createdAt).toLocaleDateString('zh-CN')}</div>
                     </div>
                   </div>

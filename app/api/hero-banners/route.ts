@@ -22,6 +22,7 @@ export async function GET() {
         name: true,
         synopsis: true,
         coverImageId: true,
+        bannerUrl: true, // 添加bannerUrl字段
         status: true
       }
     })
@@ -43,7 +44,7 @@ export async function GET() {
           name: movie.name,
           mainTitle: movie.name, // 映射name到mainTitle
           subTitle: movie.synopsis, // 映射synopsis到subTitle
-          bannerUrl: movie.coverImageId, // 映射coverImageId到bannerUrl
+          bannerUrl: banner.imageUrl || movie.bannerUrl || movie.coverImageId, // 优先使用轮播图专用字段
           jumpUrl: banner.jumpUrl || null,
           isOnline: movie.status === 'PUBLISHED'
         } : null
@@ -61,12 +62,27 @@ export async function POST(request: Request) {
   try {
     const data = await request.json()
     
+    // 获取影片的轮播图URL
+    const movie = await prisma.titles.findUnique({
+      where: { id: data.movieId },
+      select: { 
+        id: true,
+        name: true,
+        bannerUrl: true,
+        coverImageId: true
+      }
+    })
+    
     const banner = await prisma.sectionContent.create({
       data: {
         id: crypto.randomUUID(),
         sectionType: 'hero_banner',
         contentId: data.movieId,
         contentType: 'movie',
+        title: data.title || null,
+        subtitle: data.subtitle || null,
+        imageUrl: movie?.bannerUrl || movie?.coverImageId || data.imageUrl || null, // 优先使用bannerUrl，其次coverImageId
+        jumpUrl: data.jumpUrl || null,
         orderIndex: data.order || 0,
         isActive: true
       }
