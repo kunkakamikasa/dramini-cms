@@ -149,7 +149,7 @@ export default function EditMoviePage({ params }: { params: { id: string } }) {
       formDataUpload.append('file', file)
       formDataUpload.append('type', type)
 
-      const response = await fetch('/api/upload/movie-image', {
+      const response = await fetch('/api/upload', {
         method: 'POST',
         body: formDataUpload
       })
@@ -158,7 +158,7 @@ export default function EditMoviePage({ params }: { params: { id: string } }) {
         const result = await response.json()
         setFormData(prev => ({ 
           ...prev, 
-          [type === 'cover' ? 'coverUrl' : 'bannerUrl']: result.url 
+          [type === 'cover' ? 'coverImageId' : 'bannerUrl']: result.imageUrl 
         }))
         toast.success(`${type === 'cover' ? '封面图' : '轮播图'}上传成功`)
       } else {

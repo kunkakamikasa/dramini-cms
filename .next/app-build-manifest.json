@@ -1,35 +1,25 @@
 {
   "pages": {
-    "/admin/dashboard/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/admin/dashboard/page.js"
-    ],
     "/layout": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
       "static/css/app/layout.css",
       "static/chunks/app/layout.js"
     ],
-    "/admin/layout": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/admin/layout.js"
-    ],
     "/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
       "static/chunks/app/page.js"
     ],
-    "/admin/content/episodes/page": [
+    "/admin/layout": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/admin/content/episodes/page.js"
+      "static/chunks/app/admin/layout.js"
     ],
-    "/admin/content/hero-banners/page": [
+    "/admin/dashboard/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/admin/content/hero-banners/page.js"
+      "static/chunks/app/admin/dashboard/page.js"
     ],
     "/admin/content/movie-library/page": [
       "static/chunks/webpack.js",
@@ -41,25 +31,20 @@
       "static/chunks/main-app.js",
       "static/chunks/app/admin/content/movie-library/create/page.js"
     ],
+    "/admin/content/episodes/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/admin/content/episodes/page.js"
+    ],
     "/admin/content/movie-library/[id]/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
       "static/chunks/app/admin/content/movie-library/[id]/page.js"
     ],
-    "/admin/content/episodes/[id]/edit/page": [
+    "/admin/content/hero-banners/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/admin/content/episodes/[id]/edit/page.js"
-    ],
-    "/admin/content/movie-library/[id]/edit/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/admin/content/movie-library/[id]/edit/page.js"
-    ],
-    "/admin/categories/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/admin/categories/page.js"
+      "static/chunks/app/admin/content/hero-banners/page.js"
     ]
   }
 }

@@ -270,7 +270,6 @@ model titles {
   name                            String
   synopsis                        String?
   coverImageId                    String?          @map("coverImageId")
-  bannerUrl                       String?          @map("bannerurl")
   status                          String           @default("DRAFT")
   language                        String           @default("en")
   createdById                     String           @map("createdById")
@@ -281,6 +280,7 @@ model titles {
   rating                          Float?
   featuredWeight                  Int              @default(0) @map("featuredWeight")
   categoryId                      String?          @map("categoryId")
+  bannerUrl                       String?          @map("bannerurl")
   collections                     CollectionItem[]
   episodes                        episodes[]
   flagReports                     FlagReport[]
@@ -342,15 +342,15 @@ model SectionContent {
   id          String   @id @default(uuid())
   sectionType String   @map("section_type")
   contentId   String   @map("content_id")
-  contentType String   @map("content_type") @default("movie")
+  contentType String   @default("movie") @map("content_type")
   title       String?
   subtitle    String?
   imageUrl    String?  @map("image_url")
   jumpUrl     String?  @map("jump_url")
-  orderIndex  Int      @map("order_index") @default(0)
-  isActive    Boolean  @map("is_active") @default(true)
-  createdAt   DateTime @map("created_at") @default(now())
-  updatedAt   DateTime @map("updated_at") @updatedAt
+  orderIndex  Int      @default(0) @map("order_index")
+  isActive    Boolean  @default(true) @map("is_active")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
 
   @@map("section_content")
 }
