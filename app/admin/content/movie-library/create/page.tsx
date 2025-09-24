@@ -33,7 +33,7 @@ export default function CreateMoviePage() {
     subTitle: '',       // 副标题 *
     slug: '',
     synopsis: '',
-    coverUrl: '',       // 9:16封面图 *
+    coverImageId: '',   // 9:16封面图 *
     bannerUrl: '',      // 16:9轮播图 (可选)
     categoryId: '',     // 分类 *
     language: 'zh',
@@ -108,10 +108,12 @@ export default function CreateMoviePage() {
 
       if (response.ok) {
         const result = await response.json()
+        console.log('Upload result:', result) // 添加调试日志
         setFormData(prev => ({ 
           ...prev, 
           [type === 'cover' ? 'coverImageId' : 'bannerUrl']: result.imageUrl 
         }))
+        console.log('Updated formData:', formData) // 添加调试日志
         toast.success(`${type === 'cover' ? '封面图' : '轮播图'}上传成功`)
       } else {
         toast.error('图片上传失败')
@@ -139,7 +141,7 @@ export default function CreateMoviePage() {
       toast.error('请填写副标题')
       return
     }
-    if (!formData.coverUrl.trim()) {
+    if (!formData.coverImageId.trim()) {
       toast.error('请上传9:16封面图')
       return
     }
@@ -276,11 +278,11 @@ export default function CreateMoviePage() {
                   9:16封面图 * <span className="text-red-500">必填</span>
                 </label>
                 <div className="border-2 border-dashed border-gray-300 rounded-lg p-4">
-                  {formData.coverUrl ? (
+                  {formData.coverImageId ? (
                     <div className="space-y-4">
                       <div className="relative w-32 h-48 bg-gray-100 rounded-lg overflow-hidden mx-auto">
                         <img 
-                          src={formData.coverUrl} 
+                          src={formData.coverImageId} 
                           alt="封面预览" 
                           className="w-full h-full object-cover"
                         />
@@ -299,7 +301,7 @@ export default function CreateMoviePage() {
                           type="button"
                           variant="outline" 
                           size="sm"
-                          onClick={() => setFormData(prev => ({ ...prev, coverUrl: '' }))}
+                          onClick={() => setFormData(prev => ({ ...prev, coverImageId: '' }))}
                         >
                           删除
                         </Button>
@@ -421,8 +423,8 @@ export default function CreateMoviePage() {
                 <div className={formData.subTitle.trim() ? 'text-green-600' : 'text-red-600'}>
                   副标题: {formData.subTitle.trim() ? '✅' : '❌'}
                 </div>
-                <div className={formData.coverUrl.trim() ? 'text-green-600' : 'text-red-600'}>
-                  封面图: {formData.coverUrl.trim() ? '✅' : '❌'}
+                <div className={formData.coverImageId.trim() ? 'text-green-600' : 'text-red-600'}>
+                  封面图: {formData.coverImageId.trim() ? '✅' : '❌'}
                 </div>
                 <div className={formData.categoryId ? 'text-green-600' : 'text-red-600'}>
                   分类: {formData.categoryId ? '✅' : '❌'}
@@ -437,7 +439,7 @@ export default function CreateMoviePage() {
               <Button 
                 type="submit" 
                 disabled={isLoading || !formData.name.trim() || !formData.mainTitle.trim() || 
-                         !formData.subTitle.trim() || !formData.coverUrl.trim() || 
+                         !formData.subTitle.trim() || !formData.coverImageId.trim() || 
                          !formData.categoryId}
               >
                 {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}

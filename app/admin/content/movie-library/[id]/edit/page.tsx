@@ -50,7 +50,7 @@ export default function EditMoviePage({ params }: { params: { id: string } }) {
     subTitle: '',
     slug: '',
     synopsis: '',
-    coverUrl: '',
+    coverImageId: '',
     bannerUrl: '',
     categoryId: '',
     language: 'zh',
@@ -86,7 +86,7 @@ export default function EditMoviePage({ params }: { params: { id: string } }) {
           subTitle: movie.subTitle || '',
           slug: movie.slug,
           synopsis: movie.synopsis || '',
-          coverUrl: movie.coverUrl || '',
+          coverImageId: movie.coverUrl || '',
           bannerUrl: movie.bannerUrl || '',
           categoryId: movie.categoryId || '',
           language: movie.language,
@@ -333,11 +333,11 @@ export default function EditMoviePage({ params }: { params: { id: string } }) {
                   9:16封面图
                 </label>
                 <div className="border-2 border-dashed border-gray-300 rounded-lg p-4">
-                  {formData.coverUrl ? (
+                  {formData.coverImageId ? (
                     <div className="space-y-4">
                       <div className="relative w-32 h-48 bg-gray-100 rounded-lg overflow-hidden mx-auto">
                         <img 
-                          src={formData.coverUrl} 
+                          src={formData.coverImageId} 
                           alt="封面预览" 
                           className="w-full h-full object-cover"
                         />

@@ -73,6 +73,17 @@ export async function POST(request: Request) {
       }
     })
     
+    if (!movie) {
+      return NextResponse.json({ error: 'Movie not found' }, { status: 404 })
+    }
+    
+    // 强制要求有bannerUrl，如果没有则报错
+    if (!movie.bannerUrl) {
+      return NextResponse.json({ 
+        error: 'Movie must have a banner image uploaded before adding to hero banners' 
+      }, { status: 400 })
+    }
+    
     const banner = await prisma.sectionContent.create({
       data: {
         id: crypto.randomUUID(),
@@ -81,7 +92,7 @@ export async function POST(request: Request) {
         contentType: 'movie',
         title: data.title || null,
         subtitle: data.subtitle || null,
-        imageUrl: movie?.bannerUrl || movie?.coverImageId || data.imageUrl || null, // 优先使用bannerUrl，其次coverImageId
+        imageUrl: movie.bannerUrl, // 强制使用bannerUrl
         jumpUrl: data.jumpUrl || null,
         orderIndex: data.order || 0,
         isActive: true
