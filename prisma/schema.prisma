@@ -270,6 +270,7 @@ model titles {
   name                            String
   synopsis                        String?
   coverImageId                    String?          @map("coverImageId")
+  bannerUrl                       String?          @map("bannerurl")
   status                          String           @default("DRAFT")
   language                        String           @default("en")
   createdById                     String           @map("createdById")
