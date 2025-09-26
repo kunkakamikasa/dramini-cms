@@ -5,35 +5,42 @@ export async function GET() {
   try {
     const items = await prisma.sectionContent.findMany({
       where: { sectionType: 'new_release' },
-      include: {
-        titles: {
-          include: {
-            categories: { select: { name: true } }
-          }
-        }
-      },
       orderBy: { orderIndex: 'asc' }
     })
     
-    const formatted = items.map(item => ({
-      id: item.id,
-      movieId: item.titleId,
-      order: item.orderIndex,
-      movie: {
-        id: item.titles.id,
-        name: item.titles.name,
-        mainTitle: item.titles.mainTitle,
-        subTitle: item.titles.subTitle,
-        coverUrl: item.titles.coverUrl,
-        category: item.titles.categories
-      },
-      createdAt: item.createdAt
-    }))
+    // 获取所有相关的titles
+    const contentIds = items.map(item => item.contentId)
+    const titles = await prisma.titles.findMany({
+      where: { id: { in: contentIds } },
+      include: {
+        categories: { select: { name: true } }
+      }
+    })
+    
+    const titleMap = new Map(titles.map(title => [title.id, title]))
+    
+    const formatted = items.map(item => {
+      const title = titleMap.get(item.contentId)
+      return {
+        id: item.id,
+        movieId: item.contentId,
+        order: item.orderIndex,
+        movie: title ? {
+          id: title.id,
+          name: title.name,
+          mainTitle: title.name,
+          subTitle: title.synopsis,
+          coverUrl: title.coverImageId,
+          category: title.categories
+        } : null,
+        createdAt: item.createdAt
+      }
+    })
     
     return NextResponse.json(formatted)
   } catch (error) {
     console.error('Failed to fetch new release items:', error)
-    return NextResponse.json([], { status: 500 })
+    return NextResponse.json({ error: 'Failed to fetch items' }, { status: 500 })
   }
 }
 
