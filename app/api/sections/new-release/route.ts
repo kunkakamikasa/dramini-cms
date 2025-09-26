@@ -4,7 +4,7 @@ import { prisma } from '@/lib/prisma'
 export async function GET() {
   try {
     const items = await prisma.sectionContent.findMany({
-      where: { section: 'new_release' },
+      where: { sectionType: 'new_release' },
       include: {
         titles: {
           include: {
@@ -12,13 +12,13 @@ export async function GET() {
           }
         }
       },
-      orderBy: { order: 'asc' }
+      orderBy: { orderIndex: 'asc' }
     })
     
     const formatted = items.map(item => ({
       id: item.id,
       movieId: item.titleId,
-      order: item.order,
+      order: item.orderIndex,
       movie: {
         id: item.titles.id,
         name: item.titles.name,
@@ -43,9 +43,9 @@ export async function POST(request: Request) {
     
     const item = await prisma.sectionContent.create({
       data: {
-        section: 'new_release',
-        titleId: data.movieId,
-        order: data.order
+        sectionType: 'new_release',
+        contentId: data.movieId,
+        orderIndex: data.order
       }
     })
     
