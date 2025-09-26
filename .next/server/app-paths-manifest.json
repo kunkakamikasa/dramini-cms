@@ -1,7 +1,7 @@
 {
-  "/admin/content/movie-library/[id]/page": "app/admin/content/movie-library/[id]/page.js",
   "/admin/content/episodes/page": "app/admin/content/episodes/page.js",
-  "/admin/content/hero-banners/page": "app/admin/content/hero-banners/page.js",
   "/admin/dashboard/page": "app/admin/dashboard/page.js",
-  "/admin/content/movie-library/page": "app/admin/content/movie-library/page.js"
+  "/admin/content/hero-banners/page": "app/admin/content/hero-banners/page.js",
+  "/admin/content/movie-library/page": "app/admin/content/movie-library/page.js",
+  "/admin/content/movie-library/[id]/page": "app/admin/content/movie-library/[id]/page.js"
 }
