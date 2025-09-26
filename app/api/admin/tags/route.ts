@@ -91,7 +91,7 @@ export async function POST(request: NextRequest) {
     // 记录审计日志
     await prisma.auditLog.create({
       data: {
-        actorAdminId: (session.user as any).id,
+        actorUserId: (session.user as any).id,
         action: 'CREATE',
         entity: 'Tag',
         entityId: tag.id,
