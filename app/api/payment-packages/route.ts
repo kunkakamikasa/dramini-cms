@@ -2,10 +2,12 @@ export const dynamic = "force-dynamic";
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 
+// 暂时注释掉，因为PricingPlan模型字段不匹配
+/*
 // 获取所有充值套餐
 export async function GET() {
   try {
-    const packages = await prisma.paymentPackage.findMany({
+    const packages = await prisma.pricingPlan.findMany({
       where: { isActive: true },
       orderBy: { order: 'asc' }
     })
@@ -24,7 +26,7 @@ export async function POST(request: NextRequest) {
   try {
     const data = await request.json()
     
-    const paymentPackage = await prisma.paymentPackage.create({
+    const paymentPackage = await prisma.pricingPlan.create({
       data: {
         name: data.name,
         priceUsd: Math.round(parseFloat(data.priceUsd) * 100), // 转换为美分
@@ -44,4 +46,14 @@ export async function POST(request: NextRequest) {
       details: error instanceof Error ? error.message : 'Unknown error'
     }, { status: 500 })
   }
+}
+*/
+
+// 临时返回空数据
+export async function GET() {
+  return NextResponse.json([])
+}
+
+export async function POST(request: NextRequest) {
+  return NextResponse.json({ error: 'Not implemented' }, { status: 501 })
 }

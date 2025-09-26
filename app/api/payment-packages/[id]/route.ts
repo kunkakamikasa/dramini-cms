@@ -1,13 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 
+// 暂时注释掉，因为PricingPlan模型字段不匹配
+/*
 // 获取单个充值套餐
 export async function GET(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
-    const paymentPackage = await prisma.paymentPackage.findUnique({
+    const paymentPackage = await prisma.pricingPlan.findUnique({
       where: { id: params.id }
     })
     
@@ -18,7 +20,7 @@ export async function GET(
     return NextResponse.json(paymentPackage)
   } catch (error) {
     console.error('Fetch payment package error:', error)
-    return NextResponse.json({ error: 'Failed to fetch payment package' }, { status: 500 })
+    return NextResponse.json({ error: 'Failed to fetch package' }, { status: 500 })
   }
 }
 
@@ -30,7 +32,7 @@ export async function PUT(
   try {
     const data = await request.json()
     
-    const paymentPackage = await prisma.paymentPackage.update({
+    const paymentPackage = await prisma.pricingPlan.update({
       where: { id: params.id },
       data: {
         name: data.name,
@@ -38,17 +40,15 @@ export async function PUT(
         baseCoins: parseInt(data.baseCoins),
         bonusCoins: parseInt(data.bonusCoins) || 0,
         isFirstTime: data.isFirstTime || false,
-        isActive: data.isActive !== false,
-        order: parseInt(data.order) || 0,
         description: data.description || null,
-        updatedAt: new Date()
+        order: parseInt(data.order) || 0
       }
     })
     
     return NextResponse.json(paymentPackage)
   } catch (error) {
-    console.error('Update payment package error:', error)
-    return NextResponse.json({ error: 'Failed to update payment package' }, { status: 500 })
+    console.error('Update package error:', error)
+    return NextResponse.json({ error: 'Failed to update package' }, { status: 500 })
   }
 }
 
@@ -58,13 +58,36 @@ export async function DELETE(
   { params }: { params: { id: string } }
 ) {
   try {
-    await prisma.paymentPackage.delete({
+    await prisma.pricingPlan.delete({
       where: { id: params.id }
     })
     
     return NextResponse.json({ success: true })
   } catch (error) {
-    console.error('Delete payment package error:', error)
-    return NextResponse.json({ error: 'Failed to delete payment package' }, { status: 500 })
+    console.error('Delete package error:', error)
+    return NextResponse.json({ error: 'Failed to delete package' }, { status: 500 })
   }
+}
+*/
+
+// 临时返回错误
+export async function GET(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  return NextResponse.json({ error: 'Not implemented' }, { status: 501 })
+}
+
+export async function PUT(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  return NextResponse.json({ error: 'Not implemented' }, { status: 501 })
+}
+
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  return NextResponse.json({ error: 'Not implemented' }, { status: 501 })
 }
