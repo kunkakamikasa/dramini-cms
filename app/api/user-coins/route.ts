@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 
+// 暂时注释掉，因为userCoin模型不存在
+/*
 // 获取所有用户金币信息
 export async function GET() {
   try {
@@ -17,5 +19,9 @@ export async function GET() {
     return NextResponse.json({ error: 'Failed to fetch user coins' }, { status: 500 })
   }
 }
+*/
 
-
+// 临时返回空数据
+export async function GET() {
+  return NextResponse.json([])
+}
