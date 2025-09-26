@@ -13,19 +13,19 @@ export async function PATCH(request: Request, { params }: { params: { id: string
       return NextResponse.json({ error: 'Item not found' }, { status: 404 })
     }
     
-    const newOrder = direction === 'up' ? currentItem.order - 1 : currentItem.order + 1
+    const newOrder = direction === 'up' ? currentItem.orderIndex - 1 : currentItem.orderIndex + 1
     
     await prisma.$transaction([
       prisma.sectionContent.updateMany({
         where: { 
-          section: 'hero',
-          order: newOrder
+          sectionType: 'hero_banner',
+          orderIndex: newOrder
         },
-        data: { order: currentItem.order }
+        data: { orderIndex: currentItem.orderIndex }
       }),
       prisma.sectionContent.update({
         where: { id: params.id },
-        data: { order: newOrder }
+        data: { orderIndex: newOrder }
       })
     ])
     
