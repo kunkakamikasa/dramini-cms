@@ -16,16 +16,17 @@ export async function GET(
     }
     
     // 转换为前端期望的格式
+    const benefits = paymentPackage.benefitsJson ? JSON.parse(paymentPackage.benefitsJson) : {}
     const formattedPackage = {
       id: paymentPackage.id,
       name: paymentPackage.type,
-      priceUsd: paymentPackage.priceCents,
-      baseCoins: paymentPackage.priceCents,
-      bonusCoins: 0,
-      isFirstTime: false,
+      priceUsd: paymentPackage.priceCents, // 直接返回，不转换
+      baseCoins: benefits.baseCoins || 0, // 从benefitsJson中获取独立的基础金币
+      bonusCoins: benefits.bonusCoins || 0,
+      isFirstTime: benefits.isFirstTime || false,
       isActive: true,
       order: 0,
-      description: paymentPackage.benefitsJson ? JSON.parse(paymentPackage.benefitsJson).description : '',
+      description: benefits.description || '',
       createdAt: paymentPackage.createdAt.toISOString(),
       updatedAt: paymentPackage.updatedAt.toISOString()
     }
@@ -49,8 +50,8 @@ export async function PUT(
       where: { id: params.id },
       data: {
         type: data.name,
-        priceCents: parseInt(data.priceUsd),
-        currency: 'CNY',
+        priceCents: parseInt(data.priceUsd), // 前端传入多少就存多少，不转换
+        currency: 'USD',
         benefitsJson: JSON.stringify({ 
           description: data.description || '',
           baseCoins: parseInt(data.baseCoins) || 0,
@@ -61,16 +62,17 @@ export async function PUT(
     })
     
     // 返回前端期望的格式
+    const benefits = paymentPackage.benefitsJson ? JSON.parse(paymentPackage.benefitsJson) : {}
     const formattedPackage = {
       id: paymentPackage.id,
       name: paymentPackage.type,
-      priceUsd: paymentPackage.priceCents,
-      baseCoins: paymentPackage.priceCents,
-      bonusCoins: 0,
-      isFirstTime: false,
+      priceUsd: paymentPackage.priceCents, // 直接返回，不转换
+      baseCoins: benefits.baseCoins || 0, // 从benefitsJson中获取独立的基础金币
+      bonusCoins: benefits.bonusCoins || 0,
+      isFirstTime: benefits.isFirstTime || false,
       isActive: true,
       order: 0,
-      description: paymentPackage.benefitsJson ? JSON.parse(paymentPackage.benefitsJson).description : '',
+      description: benefits.description || '',
       createdAt: paymentPackage.createdAt.toISOString(),
       updatedAt: paymentPackage.updatedAt.toISOString()
     }

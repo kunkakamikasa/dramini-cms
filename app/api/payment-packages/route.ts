@@ -10,19 +10,22 @@ export async function GET() {
     })
     
     // 转换为前端期望的格式
-    const formattedPackages = packages.map(pkg => ({
-      id: pkg.id,
-      name: pkg.type,
-      priceUsd: pkg.priceCents,
-      baseCoins: pkg.priceCents, // 假设1美分=1金币
-      bonusCoins: 0,
-      isFirstTime: false,
-      isActive: true,
-      order: 0,
-      description: pkg.benefitsJson ? JSON.parse(pkg.benefitsJson).description : '',
-      createdAt: pkg.createdAt.toISOString(),
-      updatedAt: pkg.updatedAt.toISOString()
-    }))
+    const formattedPackages = packages.map(pkg => {
+      const benefits = pkg.benefitsJson ? JSON.parse(pkg.benefitsJson) : {}
+      return {
+        id: pkg.id,
+        name: pkg.type,
+        priceUsd: pkg.priceCents, // 直接显示美分，不除以100
+        baseCoins: benefits.baseCoins || 0, // 从benefitsJson中获取独立的基础金币
+        bonusCoins: benefits.bonusCoins || 0,
+        isFirstTime: benefits.isFirstTime || false,
+        isActive: true,
+        order: 0,
+        description: benefits.description || '',
+        createdAt: pkg.createdAt.toISOString(),
+        updatedAt: pkg.updatedAt.toISOString()
+      }
+    })
     
     return NextResponse.json(formattedPackages)
   } catch (error) {
@@ -42,8 +45,8 @@ export async function POST(request: NextRequest) {
     const paymentPackage = await prisma.pricingPlan.create({
       data: {
         type: data.name,
-        priceCents: parseInt(data.priceUsd), // 前端传入的是美分
-        currency: 'CNY',
+        priceCents: parseInt(data.priceUsd), // 前端传入多少就存多少，不转换
+        currency: 'USD',
         benefitsJson: JSON.stringify({ 
           description: data.description || '',
           baseCoins: parseInt(data.baseCoins) || 0,
@@ -54,16 +57,17 @@ export async function POST(request: NextRequest) {
     })
     
     // 返回前端期望的格式
+    const benefits = paymentPackage.benefitsJson ? JSON.parse(paymentPackage.benefitsJson) : {}
     const formattedPackage = {
       id: paymentPackage.id,
       name: paymentPackage.type,
-      priceUsd: paymentPackage.priceCents,
-      baseCoins: paymentPackage.priceCents,
-      bonusCoins: 0,
-      isFirstTime: false,
+      priceUsd: paymentPackage.priceCents, // 直接返回，不转换
+      baseCoins: benefits.baseCoins || 0, // 从benefitsJson中获取独立的基础金币
+      bonusCoins: benefits.bonusCoins || 0,
+      isFirstTime: benefits.isFirstTime || false,
       isActive: true,
       order: 0,
-      description: paymentPackage.benefitsJson ? JSON.parse(paymentPackage.benefitsJson).description : '',
+      description: benefits.description || '',
       createdAt: paymentPackage.createdAt.toISOString(),
       updatedAt: paymentPackage.updatedAt.toISOString()
     }

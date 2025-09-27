@@ -122,7 +122,7 @@ export default function PaymentPackagesPage() {
     setEditingPackage(pkg.id)
     setPackageForm({
       name: pkg.name,
-      priceUsd: (pkg.priceUsd / 100).toString(),
+      priceUsd: pkg.priceUsd.toString(), // 不再除以100
       baseCoins: pkg.baseCoins.toString(),
       bonusCoins: pkg.bonusCoins.toString(),
       isFirstTime: pkg.isFirstTime,
@@ -350,14 +350,14 @@ export default function PaymentPackagesPage() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium mb-1">价格 (USD) *</label>
+                  <label className="block text-sm font-medium mb-1">价格 (美分) *</label>
                   <Input
                     type="number"
-                    step="0.01"
                     value={packageForm.priceUsd}
                     onChange={(e) => setPackageForm(prev => ({ ...prev, priceUsd: e.target.value }))}
-                    placeholder="4.99"
+                    placeholder="499"
                   />
+                  <p className="text-xs text-gray-500 mt-1">例如：499 表示 $4.99</p>
                 </div>
                 <div>
                   <label className="block text-sm font-medium mb-1">基础金币 *</label>
