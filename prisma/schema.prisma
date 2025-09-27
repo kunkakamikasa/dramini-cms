@@ -281,6 +281,8 @@ model titles {
   featuredWeight                  Int              @default(0) @map("featuredWeight")
   categoryId                      String?          @map("categoryId")
   bannerUrl                       String?          @map("bannerurl")
+  freeUntilEpisode                Int?             @map("freeUntilEpisode")
+  bundlePriceCoins                Int?             @map("bundlePriceCoins")
   collections                     CollectionItem[]
   episodes                        episodes[]
   flagReports                     FlagReport[]

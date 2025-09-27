@@ -29,7 +29,9 @@ export async function GET(
         },
         episodes: {
           orderBy: { epNumber: 'asc' }
-        }
+        },
+        freeUntilEpisode: true,
+        bundlePriceCoins: true
       }
     })
 
@@ -61,6 +63,8 @@ export async function PUT(
         categoryId: data.categoryId,
         status: data.status === 'PUBLISHED' ? 'PUBLISHED' : 'DRAFT',
         rating: data.rating ? parseFloat(data.rating) : null,
+        freeUntilEpisode: data.freeUntilEpisode,
+        bundlePriceCoins: data.bundlePriceCoins,
         updatedAt: new Date()
       },
       include: {

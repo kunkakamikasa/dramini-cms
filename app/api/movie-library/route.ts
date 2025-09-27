@@ -35,6 +35,8 @@ export async function GET(request: Request) {
         episodes: {
           select: { id: true }
         },
+        freeUntilEpisode: true,
+        bundlePriceCoins: true,
         users_titles_createdByIdTousers: {
           select: { name: true }
         }
