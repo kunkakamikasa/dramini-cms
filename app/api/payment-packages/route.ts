@@ -2,16 +2,29 @@ export const dynamic = "force-dynamic";
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 
-// 暂时注释掉，因为PricingPlan模型字段不匹配
-/*
 // 获取所有充值套餐
 export async function GET() {
   try {
     const packages = await prisma.pricingPlan.findMany({
-      where: { isActive: true },
-      orderBy: { order: 'asc' }
+      orderBy: { createdAt: 'desc' }
     })
-    return NextResponse.json(packages)
+    
+    // 转换为前端期望的格式
+    const formattedPackages = packages.map(pkg => ({
+      id: pkg.id,
+      name: pkg.type,
+      priceUsd: pkg.priceCents,
+      baseCoins: pkg.priceCents, // 假设1美分=1金币
+      bonusCoins: 0,
+      isFirstTime: false,
+      isActive: true,
+      order: 0,
+      description: pkg.benefitsJson ? JSON.parse(pkg.benefitsJson).description : '',
+      createdAt: pkg.createdAt.toISOString(),
+      updatedAt: pkg.updatedAt.toISOString()
+    }))
+    
+    return NextResponse.json(formattedPackages)
   } catch (error) {
     console.error('Fetch packages error:', error)
     return NextResponse.json({ 
@@ -28,17 +41,34 @@ export async function POST(request: NextRequest) {
     
     const paymentPackage = await prisma.pricingPlan.create({
       data: {
-        name: data.name,
-        priceUsd: Math.round(parseFloat(data.priceUsd) * 100), // 转换为美分
-        baseCoins: data.baseCoins,
-        bonusCoins: data.bonusCoins || 0,
-        isFirstTime: data.isFirstTime || false,
-        description: data.description || null,
-        order: data.order || 0
+        type: data.name,
+        priceCents: parseInt(data.priceUsd), // 前端传入的是美分
+        currency: 'CNY',
+        benefitsJson: JSON.stringify({ 
+          description: data.description || '',
+          baseCoins: parseInt(data.baseCoins) || 0,
+          bonusCoins: parseInt(data.bonusCoins) || 0,
+          isFirstTime: data.isFirstTime || false
+        })
       }
     })
     
-    return NextResponse.json(paymentPackage)
+    // 返回前端期望的格式
+    const formattedPackage = {
+      id: paymentPackage.id,
+      name: paymentPackage.type,
+      priceUsd: paymentPackage.priceCents,
+      baseCoins: paymentPackage.priceCents,
+      bonusCoins: 0,
+      isFirstTime: false,
+      isActive: true,
+      order: 0,
+      description: paymentPackage.benefitsJson ? JSON.parse(paymentPackage.benefitsJson).description : '',
+      createdAt: paymentPackage.createdAt.toISOString(),
+      updatedAt: paymentPackage.updatedAt.toISOString()
+    }
+    
+    return NextResponse.json(formattedPackage)
   } catch (error) {
     console.error('Create package error:', error)
     return NextResponse.json({ 
@@ -46,14 +76,4 @@ export async function POST(request: NextRequest) {
       details: error instanceof Error ? error.message : 'Unknown error'
     }, { status: 500 })
   }
-}
-*/
-
-// 临时返回空数据
-export async function GET() {
-  return NextResponse.json([])
-}
-
-export async function POST(request: NextRequest) {
-  return NextResponse.json({ error: 'Not implemented' }, { status: 501 })
 }
