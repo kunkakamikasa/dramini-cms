@@ -15,7 +15,6 @@ interface StatsData {
 
 interface OverviewData {
   today: StatsData
-  yesterday: StatsData
   week: StatsData
   month: StatsData
 }
