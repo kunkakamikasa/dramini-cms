@@ -39,7 +39,7 @@ export default function AnalyticsPage() {
   // 获取概览数据
   const fetchOverviewData = async () => {
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE || 'https://dramini-api.onrender.com/api/v1'}/analytics/overview`)
+      const response = await fetch('/api/analytics/overview')
       const data = await response.json()
       
       if (data.success) {
@@ -85,7 +85,7 @@ export default function AnalyticsPage() {
         granularity
       })
 
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE || 'https://dramini-api.onrender.com/api/v1'}/analytics/stats?${params}`)
+      const response = await fetch(`/api/analytics/stats?${params}`)
       const data = await response.json()
       
       if (data.success) {
