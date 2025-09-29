@@ -148,7 +148,7 @@ export default function AnalyticsPage() {
                   <div className="flex items-center mt-2">
                     <TrendingUp className="w-4 h-4 text-green-400 mr-1" />
                     <Badge variant="outline" className="bg-green-900/20 text-green-400 border-green-500">
-                      +{calculateGrowthRate(overviewData.today.pv, overviewData.yesterday.pv)}%
+                      +{calculateGrowthRate(overviewData.today.pv, overviewData.week.pv)}%
                     </Badge>
                   </div>
                 </div>
@@ -167,7 +167,7 @@ export default function AnalyticsPage() {
                   <div className="flex items-center mt-2">
                     <TrendingUp className="w-4 h-4 text-green-400 mr-1" />
                     <Badge variant="outline" className="bg-green-900/20 text-green-400 border-green-500">
-                      +{calculateGrowthRate(overviewData.today.uv, overviewData.yesterday.uv)}%
+                      +{calculateGrowthRate(overviewData.today.uv, overviewData.week.uv)}%
                     </Badge>
                   </div>
                 </div>
@@ -186,7 +186,7 @@ export default function AnalyticsPage() {
                   <div className="flex items-center mt-2">
                     <TrendingUp className="w-4 h-4 text-green-400 mr-1" />
                     <Badge variant="outline" className="bg-green-900/20 text-green-400 border-green-500">
-                      +{calculateGrowthRate(overviewData.today.registrations, overviewData.yesterday.registrations)}%
+                      +{calculateGrowthRate(overviewData.today.registrations, overviewData.week.registrations)}%
                     </Badge>
                   </div>
                 </div>
@@ -205,7 +205,7 @@ export default function AnalyticsPage() {
                   <div className="flex items-center mt-2">
                     <TrendingUp className="w-4 h-4 text-green-400 mr-1" />
                     <Badge variant="outline" className="bg-green-900/20 text-green-400 border-green-500">
-                      +{calculateGrowthRate(overviewData.today.viewers, overviewData.yesterday.viewers)}%
+                      +{calculateGrowthRate(overviewData.today.viewers, overviewData.week.viewers)}%
                     </Badge>
                   </div>
                 </div>
