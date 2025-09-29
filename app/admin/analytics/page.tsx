@@ -88,7 +88,7 @@ export default function AnalyticsPage() {
       const data = await response.json()
       
       if (data.success) {
-        setTimeSeriesData(data.data)
+        setTimeSeriesData(data.data.stats)
       }
     } catch (error) {
       console.error('Fetch time series data error:', error)
