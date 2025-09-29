@@ -20,7 +20,8 @@ import {
   Sparkles,
   DollarSign,
   Coins,
-  BarChart3
+  BarChart3,
+  Activity
 } from 'lucide-react'
 
 const navigation = [
@@ -96,6 +97,16 @@ const navigation = [
         name: '订阅管理',
         href: '/admin/commerce/subscriptions',
         icon: CreditCard,
+      },
+    ],
+  },
+  {
+    name: '数据分析',
+    children: [
+      {
+        name: '网站统计',
+        href: '/admin/analytics',
+        icon: Activity,
       },
     ],
   },
