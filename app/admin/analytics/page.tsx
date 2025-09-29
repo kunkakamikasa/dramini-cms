@@ -34,7 +34,7 @@ export default function AnalyticsPage() {
   const [timeSeriesData, setTimeSeriesData] = useState<TimeSeriesData[]>([])
   const [loading, setLoading] = useState(true)
   const [granularity, setGranularity] = useState<'hour' | 'day' | 'month' | 'year'>('day')
-  const [dateRange, setDateRange] = useState<'7d' | '30d' | '90d' | '1y'>('30d')
+  const [dateRange, setDateRange] = useState<'today' | '7d' | '30d' | '90d' | '1y'>('30d')
 
   // 获取概览数据
   const fetchOverviewData = async () => {
@@ -60,6 +60,11 @@ export default function AnalyticsPage() {
       
       // 根据选择的时间范围计算开始日期
       switch (dateRange) {
+        case 'today':
+          // 当天：开始和结束都是今天
+          startDate.setHours(0, 0, 0, 0)
+          endDate.setHours(23, 59, 59, 999)
+          break
         case '7d':
           startDate.setDate(endDate.getDate() - 7)
           break
@@ -101,6 +106,13 @@ export default function AnalyticsPage() {
   useEffect(() => {
     fetchTimeSeriesData()
   }, [granularity, dateRange])
+
+  // 当选择"当天"时，自动设置为按小时统计
+  useEffect(() => {
+    if (dateRange === 'today' && granularity !== 'hour') {
+      setGranularity('hour')
+    }
+  }, [dateRange, granularity])
 
   // 计算增长率
   const calculateGrowthRate = (current: number, previous: number) => {
@@ -218,6 +230,7 @@ export default function AnalyticsPage() {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
+                  <SelectItem value="today">当天</SelectItem>
                   <SelectItem value="7d">最近7天</SelectItem>
                   <SelectItem value="30d">最近30天</SelectItem>
                   <SelectItem value="90d">最近90天</SelectItem>
@@ -247,7 +260,14 @@ export default function AnalyticsPage() {
       {/* 数据表格 */}
       <Card className="bg-gray-800 border-gray-700">
         <CardHeader>
-          <CardTitle className="text-white">详细数据</CardTitle>
+          <CardTitle className="text-white">
+            详细数据
+            {dateRange === 'today' && (
+              <span className="text-sm font-normal text-gray-400 ml-2">
+                （{new Date().toLocaleDateString('zh-CN')} 当天按小时统计）
+              </span>
+            )}
+          </CardTitle>
         </CardHeader>
         <CardContent>
           {loading ? (
@@ -271,11 +291,13 @@ export default function AnalyticsPage() {
                 </thead>
                 <tbody>
                   {timeSeriesData.map((item, index) => (
-                    <tr key={index} className="border-b border-gray-700 border-opacity-50">
-                      <td className="py-3 px-4 text-white">
-                        {new Date(item.date).toLocaleDateString('zh-CN')}
-                        {item.hour !== undefined && ` ${item.hour}:00`}
-                      </td>
+                  <tr key={index} className="border-b border-gray-700 border-opacity-50">
+                    <td className="py-3 px-4 text-white">
+                      {dateRange === 'today' && item.hour !== undefined 
+                        ? `${item.hour}:00`
+                        : new Date(item.date).toLocaleDateString('zh-CN') + (item.hour !== undefined ? ` ${item.hour}:00` : '')
+                      }
+                    </td>
                       <td className="py-3 px-4 text-right text-blue-400">
                         {formatNumber(item.pv)}
                       </td>
